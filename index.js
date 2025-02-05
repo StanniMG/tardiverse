@@ -232,7 +232,7 @@ function updateUI() {
         formeringUp.classList.add("can-buy");
     }
     else {
-        katastrofeUp3.classList.remove("can-buy");
+        formeringUp.classList.remove("can-buy");
     }
 }
 // Initial UI setup
@@ -507,16 +507,35 @@ function checkGameOver() {
     }
 }
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // Firebase-konfiguration og initialisering
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, orderBy, limit, query } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyA0XYJjI3E6eiHMidBRVsXcF-JE8OWiAPY",
-    authDomain: "bjoernedyrspil.firebaseapp.com", // Skal være præcis som i Firebase
+    authDomain: "bjoernedyrspil.firebaseapp.com",
     projectId: "bjoernedyrspil",
-    storageBucket: "bjoernedyrspil.appspot.com", 
+    storageBucket: "bjoernedyrspil.appspot.com",
     messagingSenderId: "35589893674",
     appId: "1:35589893674:web:28d63dbff568f8fe111d53",
     measurementId: "G-270N6Y6DV1"
@@ -525,17 +544,32 @@ const firebaseConfig = {
 // Initialiser Firebase
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
-const auth = getAuth(); // 🚀 Defineret før brug!
+const auth = getAuth();
 const provider = new GoogleAuthProvider();
 
+const logInd = document.getElementById("logInd");
+const logUd = document.getElementById("logUd");
+
+let playerUsername = "";
+let playerLevel = 1; // Starter med level 1 som default
+
 // Lyt efter login-status (efter auth er initialiseret!)
-auth.onAuthStateChanged((user) => {
+auth.onAuthStateChanged(async (user) => {
     if (user) {
         console.log("✅ Bruger logget ind:", user.displayName);
         document.getElementById("username").innerText = `Logget ind som: ${user.displayName}`;
+        logInd.style.display = "none";
+        logUd.style.display = "inline-block";
+
+        playerUsername = user.displayName;
+
+        // Gem data igen ved genindlæsning
+        await saveLeaderboardData(playerUsername, playerLevel);
     } else {
         console.log("❌ Ingen bruger logget ind");
         document.getElementById("username").innerText = "Ikke logget ind";
+        logUd.style.display = "none";
+        logInd.style.display = "inline-block";
     }
 });
 
@@ -548,7 +582,10 @@ async function loginWithGoogle() {
 
         playerUsername = user.displayName;
         document.getElementById("username").innerText = `Logget ind som: ${playerUsername}`;
-        
+
+        // Gem data ved login
+        await saveLeaderboardData(playerUsername, playerLevel);
+
         startGame(); // Start spillet efter login
     } catch (error) {
         console.error("🚨 Fejl ved login:", error);
@@ -570,19 +607,31 @@ async function logout() {
 async function fetchLeaderboard() {
     try {
         const leaderboardRef = collection(db, "leaderboard");
-        const q = query(leaderboardRef, orderBy("level", "desc"), limit(10));
+        const q = query(leaderboardRef, orderBy("level", "desc"));
         const querySnapshot = await getDocs(q);
-        const leaderboardData = [];
+        const leaderboardData = {};
+
         querySnapshot.forEach((doc) => {
-            leaderboardData.push(doc.data());
+            const data = doc.data();
+            if (data.username && data.username.trim() !== "") {
+                // Kun tilføj hvis brugeren ikke findes, eller hvis dette level er højere
+                if (!leaderboardData[data.username] || data.level > leaderboardData[data.username].level) {
+                    leaderboardData[data.username] = data;
+                }
+            }
         });
 
-        displayLeaderboard(leaderboardData);
+        // Konverter objektet til en liste og sorter det i faldende rækkefølge baseret på level
+        const uniqueLeaderboard = Object.values(leaderboardData).sort((a, b) => b.level - a.level);
+
+        displayLeaderboard(uniqueLeaderboard);
     } catch (error) {
         console.error("🚨 Fejl ved hentning af leaderboard:", error);
     }
 }
 
+
+// Funktion til at vise leaderboard
 function displayLeaderboard(leaderboardData) {
     const leaderboardContainer = document.getElementById("leaderboard");
     leaderboardContainer.innerHTML = "<h3>Leaderboard</h3>";
@@ -594,43 +643,27 @@ function displayLeaderboard(leaderboardData) {
     });
 }
 
+// Funktion til at gemme brugerens data på leaderboardet
 async function saveLeaderboardData(username, level) {
     try {
         await addDoc(collection(db, "leaderboard"), {
             username: username,
             level: level
         });
-        console.log("Data gemt på leaderboard");
+        console.log("✅ Data gemt på leaderboard:", username, level);
         fetchLeaderboard();
     } catch (error) {
         console.error("🚨 Fejl ved gemning af data:", error);
     }
 }
 
-let playerUsername = "";
-
+// Start spillet
 function startGame() {
     if (!playerUsername) {
         console.log("❌ Du skal være logget ind for at spille!");
         return;
     }
     console.log(`Spillet starter for ${playerUsername}`);
-    startGameLoop();
-}
-
-function startGameLoop() {
-    const gameInterval = setInterval(() => {
-        if (gameOver) {
-            clearInterval(gameInterval);
-            return;
-        }
-
-        if (count > 0) {
-            console.log(`${count}`);
-        } else {
-            clearInterval(gameInterval);
-        }
-    }, 1000);
 }
 
 // Sørg for at funktioner er tilgængelige globalt
