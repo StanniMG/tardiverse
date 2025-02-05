@@ -15,10 +15,6 @@
     <div id="celledelingCountdownLabel" style="display: none;"></div>
     <div id="gameOverLabel" style="display: none;">Du har tabt spillet!</div>
     <div id="katastrofeLabel"></div>
-    <button onclick="loginWithGoogle()">Log ind med Google</button>
-    <button onclick="logout()">Log ud</button>
-    <p id="username">Ikke logget ind</p>
-
 
 
     <div id="Label">
@@ -42,6 +38,9 @@
     </div>
 
     
+    <button onclick="loginWithGoogle()" id="logInd">Log ind med Google</button>
+    <button onclick="logout()" id="logUd" style="display: none;">Log ud</button>
+    <p id="username">Ikke logget ind</p>
 
     <!-- Læsning af spillets script -->
     <script type="module" src="index.js"></script>
