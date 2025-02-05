@@ -607,7 +607,7 @@ async function logout() {
 async function fetchLeaderboard() {
     try {
         const leaderboardRef = collection(db, "leaderboard");
-        const q = query(leaderboardRef, orderBy("level", "desc"));
+        const q = query(leaderboardRef, orderBy("level", "desc", "username", "asc"));
         const querySnapshot = await getDocs(q);
         const leaderboardData = {};
 
