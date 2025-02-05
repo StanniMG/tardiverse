@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bjørnedyrspil</title>
+    <link rel="stylesheet" href="style.css">
+
+</head>
+
+<body>
+    <div id="leaderboard"></div>
+    <label id="countdownLabel">Tid til Krig: 30 sekunder</label>
+    <div id="warLossPreviewLabel">Næste krigstab: 100</div><br>
+    <div id="celledelingCountdownLabel" style="display: none;"></div>
+    <div id="gameOverLabel" style="display: none;">Du har tabt spillet!</div>
+    <div id="katastrofeLabel"></div>
+    <button onclick="loginWithGoogle()">Log ind med Google</button>
+    <button onclick="logout()">Log ud</button>
+    <p id="username">Ikke logget ind</p>
+
+
+
+    <div id="Label">
+        <div id="levelLabel">Level: 0</div>
+        <label id="increasePerSecLabel">0 Per sekund</label><br>
+    </div>
+    <label id="talLabel">0</label>
+    <div id="bonusLabel">+0</div><br>
+    <div id="btnContainer">
+        <button id="celledelingUp" class="upgrade">Celledeling 1 (100)</button>
+        <button id="skjoldUp" class="upgrade">Skjold 1 (100)</button>
+        <button id="katastrofeUp" class="upgrade">Forsinkelse 1 (200)</button><br>
+        <button id="celledelingUp2" class="upgrade"></button>
+        <button id="skjoldUp2" class="upgrade"></button>
+        <button id="katastrofeUp2" class="upgrade"></button><br>
+        <button id="celledelingUp3" class="upgrade"></button>
+        <button id="skjoldUp3" class="upgrade"></button>
+        <button id="katastrofeUp3" class="upgrade"></button><br>
+        <div id="tooltip" class="tooltip"></div><br>
+        <button id="formeringUp" class="upgrade">Formering (75)</button><br>
+    </div>
+
+    
+
+    <!-- Læsning af spillets script -->
+    <script type="module" src="index.js"></script>
+</body>
+</html>
