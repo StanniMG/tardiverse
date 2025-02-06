@@ -2,7 +2,7 @@ body {
     background-color: hsl(0, 0%, 95%);
     font-family: Verdana, Geneva, Tahoma, sans-serif;
     text-align: center;
-    font-size: 1.1em
+    font-size: 0.75em
 }
 
 /* Stor tal-label */
@@ -18,7 +18,7 @@ body {
 }
 
 /* Forbedret countdown og vigtige labels */
-#countdownLabel, #warLossPreviewLabel, #celledelingCountdownLabel {
+#countdownLabel{
     font-size: 1.5em;
     font-weight: bold;
     color: hsl(0, 0%, 20%);
@@ -28,6 +28,13 @@ body {
     display: inline-block;
     margin: 10px 0;
     background-color: hsl(0, 0%, 90%);
+}
+
+.preview {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: hsl(0, 0%, 20%);
+    border-radius: 10px;
 }
 
 /* Game over label */
@@ -106,8 +113,8 @@ body {
     font-size: 1.3em;
     text-align: center;
     cursor: pointer;
-    width: 250px;
-    height: 50px;
+    width: 200px;
+    height: 45px;
     border: black solid 2px;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
@@ -126,19 +133,76 @@ body {
 
 /* Større knap til Formering */
 #formeringUp {
-    width: 500px;
-    height: 65px;
+    width: 300px;
+    height: 55px;
     font-size: 2em;
 }
 
-#logInd, #logUd{
-    font-size: 1.5em;
-    color: hsl(0, 0%, 20%);
-    padding: 10px;
-    border: 2px solid hsl(0, 0%, 30%);
+#login-container {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start; /* Placer elementerne til venstre */
+    margin-top: 0; /* Fjern eventuelle top-marginer */
+    padding: 0; /* Fjern padding */
+    position: absolute; /* Gør containeren absolut placeret */
+    top: 0; /* Placer den øverst på siden */
+    right: 0; /* Placer til højre */
+    z-index: 100; /* Sørg for at containeren er øverst */
+    align-items: end;
+}
+
+/* Container for usernameInput og playWithoutLogin knap */
+#username-container {
+    display: flex;
+    align-items: center;  /* Vertikal justering */
+    justify-content: flex-start;  /* Lader dem være ved siden af hinanden */
+    gap: 5,;  /* Plads mellem input og knap */
+}
+
+/* Juster bredden på inputfeltet og knappen */
+#usernameInput {
+    padding: 8px;
+    width: 130px;  /* Juster efter behov */
+}
+
+#playWithoutLogin {
+    padding: 8px 16px;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
     border-radius: 5px;
-    display: inline-block;
-    margin: 10px 0;
-    background-color: hsl(0, 0%, 90%);
     cursor: pointer;
+}
+
+#playWithoutLogin:hover {
+    background-color: #45a049;
+}
+
+
+#logInd, #logUd {
+    padding: 8px 16px;
+    margin-bottom: 10px;
+    background-color: hwb(218 9% 35%);
+    border: solid black 1px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+#logInd:hover {
+    background-color: hwb(218 9% 65%);
+}
+
+#logUd {
+    background-color: hwb(0 2% 32%);
+}
+
+#logUd:hover{
+    background-color: hwb(0 2% 42%);
+}
+
+#username {
+    color: hsl(0, 0%, 30%);
+    margin-top: 10px;
 }
