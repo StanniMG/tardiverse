@@ -82,7 +82,11 @@ function formatNumber(number) {
 
 function updateUI() {
     if (!start){
+        formeringUp.classList.add("purchased");
         return
+    }
+    else {
+        formeringUp.classList.remove("purchased");
     }
     talLabel.textContent = `${formatNumber(count)}`;
     increasePerSecLabel.textContent = `${formatNumber(countPerSec)} bjørnedyr per sekund`;
@@ -566,8 +570,7 @@ katastrofeUp3.onclick = function () {
 // Buy more points per second
 formeringUp.onclick = function () {
     if (!start){
-        start = true
-        formeringUp.style.background = "darkgray";
+        start = true;
         return
     }
     if (count >= formeringCost) {
