@@ -48,6 +48,7 @@ body {
     border: 3px solid red;
     border-radius: 10px;
     background-color: hsl(0, 100%, 90%);
+    z-index: -101;
 }
 
 /* Katastrofe label */
@@ -77,7 +78,7 @@ body {
     position: absolute; /* Gør containeren absolut placeret */
     top: 0; /* Placer den øverst på siden */
     left: 0; /* Placer til venstre */
-    z-index: -100; /* Sørg for at containeren er nederst */
+    z-index: 10; /* Sørg for at containeren er øverst */
     align-items: left;
     width: 250px;
     padding: 15px;
