@@ -9,10 +9,20 @@
 </head>
 
 <body>
-    <div id="leaderboard"></div>
-    <label id="countdownLabel">Tid til Krig: 30 sekunder</label>
-    <div id="warLossPreviewLabel">Næste krigstab: 100</div><br>
-    <div id="celledelingCountdownLabel" style="display: none;"></div>
+    <div id="leaderboard">Leaderboard</div>
+    <div id="login-container">
+        <button onclick="loginWithGoogle()" id="logInd">Log ind med Google</button>
+        <button onclick="logout()" id="logUd" style="display: none;">Log ud</button>
+        <div id="username-container">
+            <input type="text" id="usernameInput" placeholder="Indtast dit brugernavn">
+            <button id="playWithoutLogin">Submit</button>
+        </div>
+        <p id="username">Ikke logget ind</p>
+    </div>
+    <label id="countdownLabel">Tid til Krig: 20 sekunder</label>
+    <div id="warLossPreviewLabel" class="preview">Næste krigstab: 100</div><br>
+    <div id="sygdomsLossPreviewLabel" class="preview">Næste sygdom: 50%</div><br>
+    <div id="celledelingCountdownLabel" class="preview" style="display: none;"></div>
     <div id="gameOverLabel" style="display: none;">Du har tabt spillet!</div>
     <div id="katastrofeLabel"></div>
 
@@ -26,21 +36,22 @@
     <div id="btnContainer">
         <button id="celledelingUp" class="upgrade">Celledeling 1 (100)</button>
         <button id="skjoldUp" class="upgrade">Skjold 1 (100)</button>
+        <button id="medicinUp1" class="upgrade">Medicin 1 (100)</button>
         <button id="katastrofeUp" class="upgrade">Forsinkelse 1 (200)</button><br>
-        <button id="celledelingUp2" class="upgrade"></button>
-        <button id="skjoldUp2" class="upgrade"></button>
-        <button id="katastrofeUp2" class="upgrade"></button><br>
-        <button id="celledelingUp3" class="upgrade"></button>
-        <button id="skjoldUp3" class="upgrade"></button>
-        <button id="katastrofeUp3" class="upgrade"></button><br>
+        <button id="celledelingUp2" class="upgrade">Celledeling 2 (200)</button>
+        <button id="skjoldUp2" class="upgrade">Skjold 2 (200)</button>
+        <button id="medicinUp2" class="upgrade">Medicin 2 (200)</button>
+        <button id="katastrofeUp2" class="upgrade">Forsinkelse 2 (400)</button><br>
+        <button id="celledelingUp3" class="upgrade">Celledeling 3 (400)</button>
+        <button id="skjoldUp3" class="upgrade">Skjold 3 (400)</button>
+        <button id="medicinUp3" class="upgrade">Medicin 3 (400)</button>
+        <button id="katastrofeUp3" class="upgrade">Forsinkelse 3 (800)</button><br>
         <div id="tooltip" class="tooltip"></div><br>
-        <button id="formeringUp" class="upgrade">Formering (75)</button><br>
+        <button id="formeringUp" class="upgrade" style="background-color: #45a049;">Start</button><br>
     </div>
 
     
-    <button onclick="loginWithGoogle()" id="logInd">Log ind med Google</button>
-    <button onclick="logout()" id="logUd" style="display: none;">Log ud</button>
-    <p id="username">Ikke logget ind</p>
+
 
     <!-- Læsning af spillets script -->
     <script type="module" src="index.js"></script>
