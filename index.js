@@ -35,6 +35,7 @@ let plusIncreasePerSec = 1;
 let countdown = 20; // Tid i sekunder
 let gameOver = false;
 let celledelingCountdown = 7; // Tid til celledeling-bonus
+let newCelledelingCountdown = celledelingCountdown;
 let level = 0; // Start-level
 let baseWarLoss = 100;
 let nextCatastrophe = "Krig"; // Starter med krig
@@ -44,34 +45,43 @@ let start = false
 
 const tooltip = document.getElementById("tooltip");
 
+// Celledeling
 let celledelingActive = false;
 let celledelingActive2 = false;
 let celledelingActive3 = false;
-let celledelingCost = 100;
-let celledelingCost2 = 200;
-let celledelingCost3 = 400;
+let celledelingCost = 60;
+let celledelingCost2 = 150;
+let celledelingCost3 = 300;
 
+// Skjold
 let skjoldActive = false;
 let skjoldActive2 = false;
 let skjoldActive3 = false;
-let skjoldCost = 100;
-let skjoldCost2 = 200;
-let skjoldCost3 = 400;
+let skjoldCost = 75;
+let skjoldCost2 = 150;
+let skjoldCost3 = 300;
+let skjoldDefense1 = 70
+let skjoldDefense2 = 300
+let skjoldDefense3 = 600
 
+// Medicin
 let medicinActive1 = false;
 let medicinActive2 = false;
 let medicinActive3 = false;
-let medicinCost1 = 100;
-let medicinCost2 = 200;
-let medicinCost3 = 400;
+let medicinCost1 = 25;
+let medicinCost2 = 50;
+let medicinCost3 = 100;
 
-let katastrofeCost = 200;
-let katastrofeCost2 = 300;
-let katastrofeCost3 = 400; // Pris for opgraderingen
-let katastrofeDelay = 0; // Forsinkelse af katastrofer
-let katastrofeUpActive = false; // Status for opgraderingen
+// Forsinkelse
+let katastrofeCost = 75;
+let katastrofeCost2 = 150;
+let katastrofeCost3 = 200; 
+let katastrofeUpActive = false; 
 let katastrofeUpActive2 = false;
 let katastrofeUpActive3 = false;
+let katastrofeDelay1 = 10
+let katastrofeDelay2 = 15
+let katastrofeDelay3 = 20
 
 
 
@@ -108,14 +118,14 @@ function updateUI() {
     if (skjoldActive) {
         if (skjoldActive2){
             if (skjoldActive3){
-                adjustedWarLoss -= 800; // Reducer tabene, hvis skjold er aktivt
+                adjustedWarLoss -= skjoldDefense3; // Reducer tabene, hvis skjold er aktivt
             }
             else{
-                adjustedWarLoss -= 250;
+                adjustedWarLoss -= skjoldDefense2;
             }
         }
         else{
-            adjustedWarLoss -= 80;
+            adjustedWarLoss -= skjoldDefense1;
         }
         if(adjustedWarLoss < 0){
             adjustedWarLoss = 0
@@ -146,7 +156,7 @@ sygdomsLossPreviewLabel.textContent = `Tab ved næste Sygdom: ${formatNumber(adj
         celledelingUp.classList.remove("can-buy");
         celledelingUp.classList.add("purchased");
         celledelingUp.textContent = `Celledeling 1`;
-        celledelingCountdownLabel.textContent = `Tid til Celledeling: ${celledelingCountdown} sekunder`;
+        celledelingCountdownLabel.textContent = `Tid til Celledeling: ${newCelledelingCountdown} sekunder`;
     }
     else if (count >= celledelingCost) {
         celledelingUp.classList.add("can-buy");
@@ -162,7 +172,7 @@ sygdomsLossPreviewLabel.textContent = `Tab ved næste Sygdom: ${formatNumber(adj
         celledelingUp2.classList.remove("can-buy");
         celledelingUp2.classList.add("purchased");
         celledelingUp2.textContent = `Celledeling 2`;
-        celledelingCountdownLabel.textContent = `Tid til Celledeling 2: ${celledelingCountdown} sekunder`;
+        celledelingCountdownLabel.textContent = `Tid til Celledeling 2: ${newCelledelingCountdown} sekunder`;
     }
     else if (count >= celledelingCost2 && celledelingActive) {
         celledelingUp2.classList.add("can-buy");
@@ -177,7 +187,7 @@ sygdomsLossPreviewLabel.textContent = `Tab ved næste Sygdom: ${formatNumber(adj
         celledelingUp3.classList.remove("can-buy");
         celledelingUp3.classList.add("purchased");
         celledelingUp3.textContent = `Celledeling 3`;
-        celledelingCountdownLabel.textContent = `Tid til Celledeling 3: ${celledelingCountdown} sekunder`;
+        celledelingCountdownLabel.textContent = `Tid til Celledeling 3: ${newCelledelingCountdown} sekunder`;
     }
     else if (count >= celledelingCost3 && celledelingActive2) {
         celledelingUp3.classList.add("can-buy");
@@ -324,7 +334,7 @@ celledelingUp.onclick = function () {
         celledelingActive = true;
         count -= celledelingCost;
         celledelingCountdownLabel.style.display = "inline-block";
-        let newCelledelingCountdown = celledelingCountdown;
+        newCelledelingCountdown = celledelingCountdown;
         updateUI();
 
         setInterval(() => {
@@ -361,8 +371,8 @@ celledelingUp2.onclick = function () {
 
         setInterval(() => {
             if (celledelingActive2 && !celledelingActive3 && !gameOver) {
-                if (celledelingCountdown > 1) {
-                    celledelingCountdown--;
+                if (newCelledelingCountdown > 1) {
+                    newCelledelingCountdown--;
                 } else {
                     const bonus = Math.floor(count * 0.2); // 10% af bjørnedyr
                     count += bonus;
@@ -374,7 +384,7 @@ celledelingUp2.onclick = function () {
                         bonusLabel.style.opacity = 0;
                     }, 1000);
 
-                    celledelingCountdown = 10;
+                    newCelledelingCountdown = 10;
                 }
                 updateUI();
             }
@@ -393,8 +403,8 @@ celledelingUp3.onclick = function () {
 
         setInterval(() => {
             if (celledelingActive3 && !gameOver) {
-                if (celledelingCountdown > 1) {
-                    celledelingCountdown--;
+                if (newCelledelingCountdown > 1) {
+                    newCelledelingCountdown--;
                 } else {
                     const bonus = Math.floor(count * 0.4); // 10% af bjørnedyr
                     count += bonus;
@@ -406,7 +416,7 @@ celledelingUp3.onclick = function () {
                         bonusLabel.style.opacity = 0;
                     }, 1000);
 
-                    celledelingCountdown = 10;
+                    newCelledelingCountdown = 10;
                 }
                 updateUI();
             }
@@ -490,8 +500,7 @@ katastrofeUp.onclick = function () {
     if (count >= katastrofeCost && !katastrofeUpActive) {
         count -= katastrofeCost;
         katastrofeUpActive = true;
-        katastrofeDelay = 10; // Forsink katastrofer med 10 sekunder
-        countdown += katastrofeDelay;
+        countdown += katastrofeDelay1;
         updateUI();
     }
 };
@@ -503,8 +512,7 @@ katastrofeUp2.onclick = function () {
     if (count >= katastrofeCost2 && katastrofeUpActive && !katastrofeUpActive2) {
         count -= katastrofeCost2;
         katastrofeUpActive2 = true;
-        katastrofeDelay = 15; // Forsink katastrofer med 15 sekunder
-        countdown += katastrofeDelay;
+        countdown += katastrofeDelay2;
         updateUI();
     }
 };
@@ -516,8 +524,7 @@ katastrofeUp3.onclick = function () {
     if (count >= katastrofeCost3 && katastrofeUpActive2 && !katastrofeUpActive3) {
         count -= katastrofeCost3;
         katastrofeUpActive3 = true;
-        katastrofeDelay = 20; // Forsink katastrofer med 20 sekunder
-        countdown += katastrofeDelay;
+        countdown += katastrofeDelay3;
         updateUI();
     }
 };
@@ -537,11 +544,11 @@ katastrofeUp3.onclick = function () {
             tooltip.textContent = `Celledeling 3: Giver 30% af dine bjørnedyr hvert ${formatNumber(celledelingCountdown)}. sekund. Koster ${formatNumber(celledelingCost3)} bjørnedyr.`;
         }
         else if (event.target === skjoldUp) {
-            tooltip.textContent = `Skjold: Reducerer krigstab med 80. Koster ${formatNumber(skjoldCost)} bjørnedyr.`;
+            tooltip.textContent = `Skjold: Reducerer krigstab med ${skjoldDefense1}. Koster ${formatNumber(skjoldCost)} bjørnedyr.`;
         } else if (event.target === skjoldUp2) {
-            tooltip.textContent = `Skjold 2: Reducerer krigstab med 250. Koster ${formatNumber(skjoldCost2)} bjørnedyr.`;
+            tooltip.textContent = `Skjold 2: Reducerer krigstab med ${skjoldDefense2 - skjoldDefense1} ekstra / ${skjoldDefense2} i alt. Koster ${formatNumber(skjoldCost2)} bjørnedyr.`;
         } else if (event.target === skjoldUp3) {
-            tooltip.textContent = `Skjold 3: Reducerer krigstab med 800. Koster ${formatNumber(skjoldCost3)} bjørnedyr.`;
+            tooltip.textContent = `Skjold 3: Reducerer krigstab med ${skjoldDefense3 - skjoldDefense2} ekstra / ${skjoldDefense3} i alt. Koster ${formatNumber(skjoldCost3)} bjørnedyr.`;
         }
         else if (event.target === medicinUp1) {
             tooltip.textContent = `Medicin: Reducerer sygdom til 30%. Koster ${formatNumber(medicinCost1)} bjørnedyr.`;
@@ -551,11 +558,11 @@ katastrofeUp3.onclick = function () {
             tooltip.textContent = `Medicin 3: Reducerer sygdom til 0%. Koster ${formatNumber(medicinCost3)} bjørnedyr.`;
         }
         else if (event.target === katastrofeUp) {
-            tooltip.textContent = `Forsinkelse: Forsink katastrofer med 10 sekunder. Koster ${formatNumber(katastrofeCost)} bjørnedyr.`;
+            tooltip.textContent = `Forsinkelse: Forsink den næste katastrofe med ${katastrofeDelay1} sekunder. Koster ${formatNumber(katastrofeCost)} bjørnedyr.`;
         } else if (event.target === katastrofeUp2) {
-            tooltip.textContent = `Forsinkelse 2: Forsink katastrofer med 15 sekunder. Koster ${formatNumber(katastrofeCost2)} bjørnedyr.`;
+            tooltip.textContent = `Forsinkelse 2: Forsink den næste katastrofe med ${katastrofeDelay2} sekunder. Koster ${formatNumber(katastrofeCost2)} bjørnedyr.`;
         } else if (event.target === katastrofeUp3) {
-            tooltip.textContent = `Forsinkelse 3: Forsink katastrofer med 20 sekunder. Koster ${formatNumber(katastrofeCost3)} bjørnedyr.`;
+            tooltip.textContent = `Forsinkelse 3: Forsink den næste katastrofe med ${katastrofeDelay3} sekunder. Koster ${formatNumber(katastrofeCost3)} bjørnedyr.`;
         }
         else if (event.target === formeringUp) {
             tooltip.textContent = `Formering: Bjørnedyr per sekund +1. Koster ${formatNumber(formeringCost)} bjørnedyr.`;
@@ -572,6 +579,7 @@ katastrofeUp3.onclick = function () {
 formeringUp.onclick = function () {
     if (!start){
         start = true;
+        updateUI()
         return
     }
     if (count >= formeringCost) {
@@ -599,14 +607,14 @@ function handlePointLoss() {
         if (skjoldActive) {
             if (skjoldActive2){
                 if (skjoldActive3){
-                    warLoss -= 800; // Reducer tabene, hvis skjold er aktivt
+                    warLoss -= skjoldDefense3; // Reducer tabene, hvis skjold er aktivt
                 }
                 else{
-                    warLoss -= 250;
+                    warLoss -= skjoldDefense2;
                 }
             }
             else{
-                warLoss -= 80;
+                warLoss -= skjoldDefense1;
             }
         }
         if (warLoss < 0){
@@ -638,7 +646,13 @@ function handlePointLoss() {
         }
         
         
-        katastrofeLabel.textContent = `Sygdom: Du har mistet ${formatNumber(sygdomsLoss*100)}% bjørnedyr.`;
+        
+        if (sygdomsLoss == 0) {
+            katastrofeLabel.textContent = `Sygdom: Du har ikke mistet nogen af dine bjørnedyr.`;
+        }
+        else {
+        katastrofeLabel.textContent = `Sygdom: Du har mistet ${formatNumber(sygdomsLoss*100)}% af dine bjørnedyr.`;
+        }
     }
 
     level++; // Øg level efter hver katastrofe
@@ -650,7 +664,7 @@ function handlePointLoss() {
     }, 10000);
     nextCatastrophe = nextCatastrophe === "Krig" ? "Sygdom" : "Krig";
     checkGameOver();
-    countdown = 20 + katastrofeDelay; // Tilføj forsinkelse
+    countdown = 20 //+ katastrofeDelay; // Tilføj forsinkelse
 }
 
 // Katastrofe-nedtælling med forsinkelse
@@ -690,17 +704,9 @@ function checkGameOver() {
 
 
 
-
-
-
-
-
-
-
-
 // Firebase-konfiguration og initialisering
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, orderBy, query } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, orderBy, query, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -753,14 +759,16 @@ async function loginWithGoogle() {
         const user = result.user;
         console.log("✅ Logget ind som:", user.displayName);
 
-        playerUsername = user.displayName;
-        document.getElementById("username").innerText = `Logget ind som: ${playerUsername}`;
-
-        startGame(); // Start spillet efter login
+        if (!playerUsername) { // Kun start spillet hvis det ikke allerede er startet
+            playerUsername = user.displayName;
+            document.getElementById("username").innerText = `Logget ind som: ${playerUsername}`;
+            startGame();
+        }
     } catch (error) {
         console.error("🚨 Fejl ved login:", error);
     }
 }
+
 window.loginWithGoogle = loginWithGoogle;
 
 // Funktion til at logge ud
@@ -829,25 +837,26 @@ playWithoutLoginBtn.addEventListener("click", () => {
 });
 
 // Hent og vis leaderboard
+// Hent og vis leaderboard
 async function fetchLeaderboard() {
     try {
         const leaderboardRef = collection(db, "leaderboard");
         const q = query(leaderboardRef, orderBy("level", "desc"));
         const querySnapshot = await getDocs(q);
-        const leaderboardData = {};
+        const leaderboardData = new Map();
 
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             if (data.username && data.username.trim() !== "") {
-                // Kun tilføj hvis brugeren ikke findes, eller hvis dette level er højere
-                if (!leaderboardData[data.username] || data.level > leaderboardData[data.username].level) {
-                    leaderboardData[data.username] = data;
+                // Kun tilføj eller opdater data, hvis brugerens level er højere
+                if (!leaderboardData.has(data.username) || data.level > leaderboardData.get(data.username).level) {
+                    leaderboardData.set(data.username, data);
                 }
             }
         });
 
-        // Konverter objektet til en liste og sorter det i faldende rækkefølge baseret på level
-        const uniqueLeaderboard = Object.values(leaderboardData).sort((a, b) => b.level - a.level);
+        // Konverter Map til en array og sorter efter level
+        const uniqueLeaderboard = Array.from(leaderboardData.values()).sort((a, b) => b.level - a.level);
 
         // Vis kun de 10 bedste spillere
         displayLeaderboard(uniqueLeaderboard.slice(0, 10));
@@ -855,6 +864,9 @@ async function fetchLeaderboard() {
         console.error("🚨 Fejl ved hentning af leaderboard:", error);
     }
 }
+
+
+
 
 
 // Funktion til at vise leaderboard
@@ -877,16 +889,45 @@ async function saveLeaderboardData(username, level) {
         return;
     }
     try {
-        await addDoc(collection(db, "leaderboard"), {
-            username: username,
-            level: level
+        const leaderboardRef = collection(db, "leaderboard");
+        const q = query(leaderboardRef);
+        const querySnapshot = await getDocs(q);
+
+        let existingDoc = null;
+        
+        // Tjek om spilleren allerede er i databasen
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
+            if (data.username === username) { // Sørg for, at brugernavnet matcher
+                if (!existingDoc || data.level < level) {
+                    existingDoc = docSnap;
+                }
+            }
         });
-        console.log("✅ Data gemt på leaderboard:", username, level);
+
+        if (existingDoc) {
+            // Opdater eksisterende dokument, hvis spilleren har en højere score
+            if (existingDoc.data().level < level) {
+                await updateDoc(doc(db, "leaderboard", existingDoc.id), {
+                    level: level
+                });
+                console.log("✅ Opdateret score for:", username);
+            }
+        } else {
+            // Ellers tilføj en ny post
+            await addDoc(collection(db, "leaderboard"), {
+                username: username,
+                level: level
+            });
+            console.log("✅ Data gemt på leaderboard:", username, level);
+        }
+
         fetchLeaderboard();
     } catch (error) {
         console.error("🚨 Fejl ved gemning af data:", error);
     }
 }
+
 
 
 // Start spillet
@@ -914,4 +955,3 @@ if (typeof window.gameOver === "undefined") {
 window.onload = () => {
     fetchLeaderboard();
 };
-
