@@ -775,7 +775,6 @@ window.logout = logout;
 playWithoutLoginBtn.addEventListener("click", () => {
     const inputName = usernameInput.value.trim();
     if (!inputName) {
-        alert("Indtast dit brugernavn!");
         return;
     }
     playerUsername = inputName;
