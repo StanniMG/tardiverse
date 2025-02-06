@@ -27,14 +27,14 @@ const katastrofeUp3 = document.getElementById("katastrofeUp3");
 const formeringUp = document.getElementById("formeringUp");
 
 // Variables
-let count = 400;
+let count = 200;
 let countPerSec = 2;
-let formeringCost = 75;
+let formeringCost = 50;
 let plusIncreasePerSec = 1;
 
 let countdown = 20; // Tid i sekunder
 let gameOver = false;
-let celledelingCountdown = 10; // Tid til celledeling-bonus
+let celledelingCountdown = 7; // Tid til celledeling-bonus
 let level = 0; // Start-level
 let baseWarLoss = 100;
 let nextCatastrophe = "Krig"; // Starter med krig
@@ -66,8 +66,8 @@ let medicinCost2 = 200;
 let medicinCost3 = 400;
 
 let katastrofeCost = 200;
-let katastrofeCost2 = 400;
-let katastrofeCost3 = 800; // Pris for opgraderingen
+let katastrofeCost2 = 300;
+let katastrofeCost3 = 400; // Pris for opgraderingen
 let katastrofeDelay = 0; // Forsinkelse af katastrofer
 let katastrofeUpActive = false; // Status for opgraderingen
 let katastrofeUpActive2 = false;
@@ -324,12 +324,13 @@ celledelingUp.onclick = function () {
         celledelingActive = true;
         count -= celledelingCost;
         celledelingCountdownLabel.style.display = "inline-block";
+        let newCelledelingCountdown = celledelingCountdown;
         updateUI();
 
         setInterval(() => {
             if (celledelingActive && !celledelingActive2 && !gameOver) {
-                if (celledelingCountdown > 1) {
-                    celledelingCountdown--;
+                if (newCelledelingCountdown > 1) {
+                    newCelledelingCountdown--;
                 } else {
                     const bonus = Math.floor(count * 0.1); // 10% af bjørnedyr
                     count += bonus;
@@ -341,7 +342,7 @@ celledelingUp.onclick = function () {
                         bonusLabel.style.opacity = 0;
                     }, 1000);
 
-                    celledelingCountdown = 10;
+                    newCelledelingCountdown = celledelingCountdown;
                 }
                 updateUI();
             }
@@ -529,35 +530,35 @@ katastrofeUp3.onclick = function () {
         tooltip.style.top = `${event.target.getBoundingClientRect().top - tooltip.offsetHeight - 10}px`;
 
         if (event.target === celledelingUp) {
-            tooltip.textContent = "Celledeling: Giver 10% af dine bjørnedyr hvert 10. sekund. Koster 100 bjørnedyr.";
+            tooltip.textContent = `Celledeling: Giver 10% af dine bjørnedyr hvert ${formatNumber(celledelingCountdown)}. sekund. Koster ${formatNumber(celledelingCost)} bjørnedyr.`;
         } else if (event.target === celledelingUp2) {
-            tooltip.textContent = "Celledeling 2: Giver 20% af dine bjørnedyr hvert 10. sekund. Koster 200 bjørnedyr.";
+            tooltip.textContent = `Celledeling 2: Giver 20% af dine bjørnedyr hvert ${formatNumber(celledelingCountdown)}. sekund. Koster ${formatNumber(celledelingCost2)} bjørnedyr.`;
         } else if (event.target === celledelingUp3) {
-            tooltip.textContent = "Celledeling 3: Giver 30% af dine bjørnedyr hvert 10. sekund. Koster 400 bjørnedyr.";
+            tooltip.textContent = `Celledeling 3: Giver 30% af dine bjørnedyr hvert ${formatNumber(celledelingCountdown)}. sekund. Koster ${formatNumber(celledelingCost3)} bjørnedyr.`;
         }
         else if (event.target === skjoldUp) {
-            tooltip.textContent = "Skjold: Reducerer krigstab med 80. Koster 100 bjørnedyr.";
+            tooltip.textContent = `Skjold: Reducerer krigstab med 80. Koster ${formatNumber(skjoldCost)} bjørnedyr.`;
         } else if (event.target === skjoldUp2) {
-            tooltip.textContent = "Skjold 2: Reducerer krigstab med 250. Koster 200 bjørnedyr.";
+            tooltip.textContent = `Skjold 2: Reducerer krigstab med 250. Koster ${formatNumber(skjoldCost2)} bjørnedyr.`;
         } else if (event.target === skjoldUp3) {
-            tooltip.textContent = "Skjold 3: Reducerer krigstab med 800. Koster 400 bjørnedyr.";
+            tooltip.textContent = `Skjold 3: Reducerer krigstab med 800. Koster ${formatNumber(skjoldCost3)} bjørnedyr.`;
         }
         else if (event.target === medicinUp1) {
-            tooltip.textContent = "Medicin: Reducerer sygdom til 30%. Koster 100 bjørnedyr.";
+            tooltip.textContent = `Medicin: Reducerer sygdom til 30%. Koster ${formatNumber(medicinCost1)} bjørnedyr.`;
         } else if (event.target === medicinUp2) {
-            tooltip.textContent = "Medicin 2: Reducerer sygdom til 10%. Koster 200 bjørnedyr.";
+            tooltip.textContent = `Medicin 2: Reducerer sygdom til 10%. Koster ${formatNumber(medicinCost2)} bjørnedyr.`;
         } else if (event.target === medicinUp3) {
-            tooltip.textContent = "Medicin 3: Reducerer sygdom til 0%. Koster 400 bjørnedyr.";
+            tooltip.textContent = `Medicin 3: Reducerer sygdom til 0%. Koster ${formatNumber(medicinCost3)} bjørnedyr.`;
         }
         else if (event.target === katastrofeUp) {
-            tooltip.textContent = "Forsinkelse: Forsink katastrofer med 10 sekunder. Koster 200 bjørnedyr.";
+            tooltip.textContent = `Forsinkelse: Forsink katastrofer med 10 sekunder. Koster ${formatNumber(katastrofeCost)} bjørnedyr.`;
         } else if (event.target === katastrofeUp2) {
-            tooltip.textContent = "Forsinkelse 2: Forsink katastrofer med 15 sekunder. Koster 400 bjørnedyr.";
+            tooltip.textContent = `Forsinkelse 2: Forsink katastrofer med 15 sekunder. Koster ${formatNumber(katastrofeCost2)} bjørnedyr.`;
         } else if (event.target === katastrofeUp3) {
-            tooltip.textContent = "Forsinkelse 3: Forsink katastrofer med 20 sekunder. Koster 800 bjørnedyr.";
+            tooltip.textContent = `Forsinkelse 3: Forsink katastrofer med 20 sekunder. Koster ${formatNumber(katastrofeCost3)} bjørnedyr.`;
         }
         else if (event.target === formeringUp) {
-            tooltip.textContent = "Formering: Bjørnedyr per sekund +1. Koster 75 bjørnedyr.";
+            tooltip.textContent = `Formering: Bjørnedyr per sekund +1. Koster ${formatNumber(formeringCost)} bjørnedyr.`;
         }
     });
 
@@ -774,12 +775,54 @@ async function logout() {
 }
 window.logout = logout;
 
+// Liste over forbudte ord (kan udvides)
+const bannedWords = ["ligma", "balls", "deez", "nuts", "admin", "grim", "ugly"];
+
+// Funktion til at validere brugernavnet
+
+function isValidUsername(username) {
+    username = username.toLowerCase().trim(); // Fjern mellemrum og gør det småt
+
+    // Tjek længde (min 3, max 15 tegn)
+    if (username.length < 2 || username.length > 30) {
+        return "Brugernavn skal være mellem 2 og 30 tegn.";
+    }
+
+    // Tjek for forbudte ord
+    for (const word of bannedWords) {
+        if (username.includes(word)) {
+            return "Ugyldigt brugernavn.";
+        }
+    }
+
+    return true; // Godkendt brugernavn
+}
+
+// Event listener for knappen
+document.getElementById("playWithoutLogin").addEventListener("click", function () {
+    const usernameInput = document.getElementById("usernameInput").value;
+    const validationMessage = isValidUsername(usernameInput);
+
+    if (validationMessage === true) {
+        playerUsername = usernameInput; // Gem gyldigt brugernavn
+        startGame(); // Start spillet
+    } else {
+        alert(validationMessage); // Vis fejlmeddelelse
+    }
+});
+
+
 // Tilføj event listener til playWithoutLogin-knappen
 playWithoutLoginBtn.addEventListener("click", () => {
     const inputName = usernameInput.value.trim();
+    const validationResult = isValidUsername(inputName);
+    if (validationResult !== true) {
+        return;
+}
     if (!inputName) {
         return;
     }
+    
     playerUsername = inputName;
     document.getElementById("username").innerText = `Spiller: ${playerUsername}`;
     startGame();
@@ -806,11 +849,13 @@ async function fetchLeaderboard() {
         // Konverter objektet til en liste og sorter det i faldende rækkefølge baseret på level
         const uniqueLeaderboard = Object.values(leaderboardData).sort((a, b) => b.level - a.level);
 
-        displayLeaderboard(uniqueLeaderboard);
+        // Vis kun de 10 bedste spillere
+        displayLeaderboard(uniqueLeaderboard.slice(0, 10));
     } catch (error) {
         console.error("🚨 Fejl ved hentning af leaderboard:", error);
     }
 }
+
 
 // Funktion til at vise leaderboard
 function displayLeaderboard(leaderboardData) {
@@ -826,6 +871,11 @@ function displayLeaderboard(leaderboardData) {
 
 // Funktion til at gemme brugerens data på leaderboardet
 async function saveLeaderboardData(username, level) {
+    const validationResult = isValidUsername(username);
+    if (validationResult !== true) {
+        console.error("Ugyldigt brugernavn, data bliver ikke gemt:", validationResult);
+        return;
+    }
     try {
         await addDoc(collection(db, "leaderboard"), {
             username: username,
@@ -838,13 +888,14 @@ async function saveLeaderboardData(username, level) {
     }
 }
 
+
 // Start spillet
 function startGame() {
+
     if (!playerUsername) {
         console.log("❌ Du skal have et brugernavn for at spille!");
         return;
     }
-    console.log(`Spillet starter for ${playerUsername}`);
     // Her kan du starte dit spil
 }
 
