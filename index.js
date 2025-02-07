@@ -71,9 +71,9 @@ let skjoldDefense3 = 700
 let medicinActive1 = false;
 let medicinActive2 = false;
 let medicinActive3 = false;
-let medicinCost1 = 25;
-let medicinCost2 = 50;
-let medicinCost3 = 100;
+let medicinCost1 = 50;
+let medicinCost2 = 100;
+let medicinCost3 = 200;
 
 // Forsinkelse
 let katastrofeCost = 75;
