@@ -607,35 +607,35 @@ katastrofeUp3.onclick = function () {
         tooltip.style.top = `${event.target.getBoundingClientRect().top - tooltip.offsetHeight - 10}px`;
 
         if (event.target === celledelingUp) {
-            tooltip.textContent = `Celledeling: Giver 10% af dine bjørnedyr hvert ${celledelingCountdown}. sekund. Koster (${celledelingCost}) bjørnedyr.`;
+            tooltip.textContent = `Celledeling: Giver 10% af dine bjørnedyr hvert ${celledelingCountdown}. sekund. Koster ${celledelingCost} bjørnedyr.`;
         } else if (event.target === celledelingUp2) {
-            tooltip.textContent = `Celledeling 2: Giver 20% af dine bjørnedyr hvert ${celledelingCountdown}. sekund. Koster (${celledelingCost2}) bjørnedyr.`;
+            tooltip.textContent = `Celledeling 2: Giver 20% af dine bjørnedyr hvert ${celledelingCountdown}. sekund. Koster ${celledelingCost2} bjørnedyr.`;
         } else if (event.target === celledelingUp3) {
-            tooltip.textContent = `Celledeling 3: Giver 30% af dine bjørnedyr hvert ${celledelingCountdown}. sekund. Koster (${celledelingCost3}) bjørnedyr.`;
+            tooltip.textContent = `Celledeling 3: Giver 30% af dine bjørnedyr hvert ${celledelingCountdown}. sekund. Koster ${celledelingCost3} bjørnedyr.`;
         }
         else if (event.target === skjoldUp) {
             tooltip.textContent = `Skjold: Reducerer krigstab med ${skjoldDefense1}. Koster ${skjoldCost} bjørnedyr.`;
         } else if (event.target === skjoldUp2) {
-            tooltip.textContent = `Skjold 2: Reducerer krigstab med ${skjoldDefense2 - skjoldDefense1} ekstra / ${skjoldDefense2} i alt. Koster (${skjoldCost2}) bjørnedyr.`;
+            tooltip.textContent = `Skjold 2: Reducerer krigstab med ${skjoldDefense2 - skjoldDefense1} ekstra / ${skjoldDefense2} i alt. Koster ${skjoldCost2} bjørnedyr.`;
         } else if (event.target === skjoldUp3) {
-            tooltip.textContent = `Skjold 3: Reducerer krigstab med ${skjoldDefense3 - skjoldDefense2} ekstra / ${skjoldDefense3} i alt. Koster (${skjoldCost3}) bjørnedyr.`;
+            tooltip.textContent = `Skjold 3: Reducerer krigstab med ${skjoldDefense3 - skjoldDefense2} ekstra / ${skjoldDefense3} i alt. Koster ${skjoldCost3} bjørnedyr.`;
         }
         else if (event.target === medicinUp1) {
-            tooltip.textContent = `Medicin: Reducerer sygdom til 30%, og reducerer formerings tabet med 1. Koster (${medicinCost1}) bjørnedyr.`;
+            tooltip.textContent = `Medicin: Reducerer sygdom til 30%, og reducerer formerings tabet med 1. Koster ${medicinCost1} bjørnedyr.`;
         } else if (event.target === medicinUp2) {
-            tooltip.textContent = `Medicin 2: Reducerer sygdom til 10%, og reducerer formerings tabet med 2. Koster (${medicinCost2}) bjørnedyr.`;
+            tooltip.textContent = `Medicin 2: Reducerer sygdom til 10%, og reducerer formerings tabet med 2. Koster ${medicinCost2} bjørnedyr.`;
         } else if (event.target === medicinUp3) {
-            tooltip.textContent = `Medicin 3: Reducerer sygdom til 0%, og reducerer formerings tabet med 3. Koster (${medicinCost3}) bjørnedyr.`;
+            tooltip.textContent = `Medicin 3: Reducerer sygdom til 0%, og reducerer formerings tabet med 3. Koster ${medicinCost3} bjørnedyr.`;
         }
         else if (event.target === katastrofeUp) {
-            tooltip.textContent = `Forsinkelse: Forsink den næste katastrofe med ${katastrofeDelay1} sekunder. Koster (${katastrofeCost}) bjørnedyr.`;
+            tooltip.textContent = `Forsinkelse: Forsink den næste katastrofe med ${katastrofeDelay1} sekunder. Koster ${katastrofeCost} bjørnedyr.`;
         } else if (event.target === katastrofeUp2) {
-            tooltip.textContent = `Forsinkelse 2: Forsink den næste katastrofe med ${katastrofeDelay2} sekunder. Koster (${katastrofeCost2}) bjørnedyr.`;
+            tooltip.textContent = `Forsinkelse 2: Forsink den næste katastrofe med ${katastrofeDelay2} sekunder. Koster ${katastrofeCost2} bjørnedyr.`;
         } else if (event.target === katastrofeUp3) {
-            tooltip.textContent = `Forsinkelse 3: Forsink den næste katastrofe med ${katastrofeDelay3} sekunder. Koster (${katastrofeCost3}) bjørnedyr.`;
+            tooltip.textContent = `Forsinkelse 3: Forsink den næste katastrofe med ${katastrofeDelay3} sekunder. Koster ${katastrofeCost3} bjørnedyr.`;
         }
         else if (event.target === formeringUp) {
-            tooltip.textContent = `Formering: Bjørnedyr per sekund +1. Koster (${formeringCost}) bjørnedyr.`;
+            tooltip.textContent = `Formering: Bjørnedyr per sekund +1. Koster ${formeringCost} bjørnedyr.`;
         }
     });
 
