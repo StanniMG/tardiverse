@@ -86,34 +86,38 @@ let katastrofeDelay3 = 20
 
 
 // Helper function to format numbers with a dot every three zeros
-function formatNumber(number) {
-    return number.toLocaleString('da-DK');
-}
+
 
 function updateUI() {
     if (!start){
+        formeringUp.classList.add("purchased");
+        countdownLabel.textContent = "Tid til Krig: 20 sekunder";
+        return
+    }
+    else if (gameOver){
+        formeringUp.textContent = "Genstart";
         formeringUp.classList.add("purchased");
         return
     }
     else {
         formeringUp.classList.remove("purchased");
     }
-    talLabel.textContent = `${formatNumber(count)}`;
-    increasePerSecLabel.textContent = `${formatNumber(countPerSec)} bjørnedyr per sekund`;
+    talLabel.textContent = `${(count)}`;
+    increasePerSecLabel.textContent = `${(countPerSec)} bjørnedyr per sekund`;
     levelLabel.textContent = `Level: ${level}`;
-    formeringUp.textContent = `Formering (${formatNumber(formeringCost)})`;
-    celledelingUp.textContent = `Celledeling 1 (${formatNumber(celledelingCost)})`;
-    celledelingUp2.textContent = `Celledeling 2 (${formatNumber(celledelingCost2)})`
-    celledelingUp3.textContent = `Celledeling 3 (${formatNumber(celledelingCost3)})`
-    skjoldUp.textContent = `Skjold 1 (${formatNumber(skjoldCost)})`;
-    skjoldUp2.textContent = `Skjold 2 (${formatNumber(skjoldCost2)})`;
-    skjoldUp3.textContent = `Skjold 3 (${formatNumber(skjoldCost3)})`;
-    medicinUp1.textContent = `Medicin 1 (${formatNumber(medicinCost1)})`;
-    medicinUp2.textContent = `Medicin 2 (${formatNumber(medicinCost2)})`;
-    medicinUp3.textContent = `Medicin 3 (${formatNumber(medicinCost3)})`;
-    katastrofeUp.textContent = `Forsinkelse 1 (${formatNumber(katastrofeCost)})`;
-    katastrofeUp2.textContent = `Forsinkelse 2 (${formatNumber(katastrofeCost2)})`;
-    katastrofeUp3.textContent = `Forsinkelse 3 (${formatNumber(katastrofeCost3)})`;
+    formeringUp.textContent = `Formering ${(formeringCost)}`;
+    celledelingUp.textContent = `Celledeling 1 ${(celledelingCost)}`;
+    celledelingUp2.textContent = `Celledeling 2 ${(celledelingCost2)}`
+    celledelingUp3.textContent = `Celledeling 3 ${(celledelingCost3)}`
+    skjoldUp.textContent = `Skjold 1 ${(skjoldCost)}`;
+    skjoldUp2.textContent = `Skjold 2 ${(skjoldCost2)}`;
+    skjoldUp3.textContent = `Skjold 3 ${(skjoldCost3)}`;
+    medicinUp1.textContent = `Medicin 1 ${(medicinCost1)}`;
+    medicinUp2.textContent = `Medicin 2 ${(medicinCost2)}`;
+    medicinUp3.textContent = `Medicin 3 ${(medicinCost3)}`;
+    katastrofeUp.textContent = `Forsinkelse 1 ${(katastrofeCost)}`;
+    katastrofeUp2.textContent = `Forsinkelse 2 ${(katastrofeCost2)}`;
+    katastrofeUp3.textContent = `Forsinkelse 3 ${(katastrofeCost3)}`;
     let adjustedWarLoss = baseWarLoss; // Brug kun baseWarLoss
     if (skjoldActive) {
         if (skjoldActive2){
@@ -131,7 +135,7 @@ function updateUI() {
             adjustedWarLoss = 0
         }
     }
-    warLossPreviewLabel.textContent = `Tab ved næste krig: ${formatNumber(adjustedWarLoss)}`;
+    warLossPreviewLabel.textContent = `Tab ved næste krig: ${(adjustedWarLoss)}`;
 
 // Medicin: Beregn den justerede procentvise tab ved næste sygdom
 let adjustedSygdomsLoss = baseSygdomsLoss; // starter med 50% (0.5)
@@ -148,7 +152,7 @@ if (medicinActive1) {
 } else {
     adjustedSygdomsLoss = baseSygdomsLoss;
 }
-sygdomsLossPreviewLabel.textContent = `Tab ved næste Sygdom: ${formatNumber(adjustedSygdomsLoss * 100)}%`;
+sygdomsLossPreviewLabel.textContent = `Tab ved næste Sygdom: ${(adjustedSygdomsLoss * 100)}%`;
 
 
     // Celledeling-status
@@ -328,10 +332,10 @@ function showChangeLabel(amount) {
     // Hvis amount er positivt, vises et grønt tal med et + foran,
     // hvis det er negativt, vises tallet i rødt.
     if (amount > 0) {
-        bonusLabel.textContent = `+${formatNumber(amount)}`;
+        bonusLabel.textContent = `+${(amount)}`;
         bonusLabel.style.color = "hsl(120, 100%, 40%)";
     } else if (amount < 0) {
-        bonusLabel.textContent = `${formatNumber(amount)}`;
+        bonusLabel.textContent = `${(amount)}`;
         bonusLabel.style.color = "hsl(10, 100.00%, 50.00%)";
     } else {
         bonusLabel.textContent = "0";
@@ -343,6 +347,50 @@ function showChangeLabel(amount) {
         bonusLabel.style.opacity = 0;
     }, 1000);
 }
+
+function restart() {
+    // Nulstil variabler
+    count = 200;
+    celledelingActive = false;
+    celledelingActive2 = false;
+    celledelingActive3 = false;
+    skjoldActive = false;
+    skjoldActive2 = false;
+    skjoldActive3 = false;
+    medicinActive1 = false;
+    medicinActive2 = false;
+    medicinActive3 = false;
+
+    countPerSec = 2;
+    countdown = 20;
+    gameOver = false;
+    start = true;
+    baseWarLoss = 100;
+    baseSygdomsLoss = 0.5;
+    level = 0;
+    nextCatastrophe = "Krig";
+    gameOverLabel.style.display = "none";
+    celledelingCountdownLabel.style.display = "none";
+    document.body.style.backgroundColor = "hsl(0, 0%, 95%)";
+
+    // Ryd den gamle timer, hvis den kører
+    clearInterval(gameTimer);
+
+    // Start en ny timer for katastrofe-nedtælling
+    gameTimer = setInterval(function () {
+        if (gameOver) return;
+        if (!start) return;
+        if (countdown > 1) {
+            countdown--;
+            countdownLabel.textContent = `Tid til ${nextCatastrophe}: ${countdown} sekunder`;
+        } else {
+            handlePointLoss();
+        }
+    }, 1000);
+
+    updateUI();
+}
+
 
 
 // Celledeling-knap
@@ -552,35 +600,35 @@ katastrofeUp3.onclick = function () {
         tooltip.style.top = `${event.target.getBoundingClientRect().top - tooltip.offsetHeight - 10}px`;
 
         if (event.target === celledelingUp) {
-            tooltip.textContent = `Celledeling: Giver 10% af dine bjørnedyr hvert ${formatNumber(celledelingCountdown)}. sekund. Koster ${formatNumber(celledelingCost)} bjørnedyr.`;
+            tooltip.textContent = `Celledeling: Giver 10% af dine bjørnedyr hvert ${celledelingCountdown}. sekund. Koster ${celledelingCost} bjørnedyr.`;
         } else if (event.target === celledelingUp2) {
-            tooltip.textContent = `Celledeling 2: Giver 20% af dine bjørnedyr hvert ${formatNumber(celledelingCountdown)}. sekund. Koster ${formatNumber(celledelingCost2)} bjørnedyr.`;
+            tooltip.textContent = `Celledeling 2: Giver 20% af dine bjørnedyr hvert ${celledelingCountdown}. sekund. Koster ${celledelingCost2} bjørnedyr.`;
         } else if (event.target === celledelingUp3) {
-            tooltip.textContent = `Celledeling 3: Giver 30% af dine bjørnedyr hvert ${formatNumber(celledelingCountdown)}. sekund. Koster ${formatNumber(celledelingCost3)} bjørnedyr.`;
+            tooltip.textContent = `Celledeling 3: Giver 30% af dine bjørnedyr hvert ${celledelingCountdown}. sekund. Koster ${celledelingCost3} bjørnedyr.`;
         }
         else if (event.target === skjoldUp) {
-            tooltip.textContent = `Skjold: Reducerer krigstab med ${skjoldDefense1}. Koster ${formatNumber(skjoldCost)} bjørnedyr.`;
+            tooltip.textContent = `Skjold: Reducerer krigstab med ${skjoldDefense1}. Koster ${skjoldCost} bjørnedyr.`;
         } else if (event.target === skjoldUp2) {
-            tooltip.textContent = `Skjold 2: Reducerer krigstab med ${skjoldDefense2 - skjoldDefense1} ekstra / ${skjoldDefense2} i alt. Koster ${formatNumber(skjoldCost2)} bjørnedyr.`;
+            tooltip.textContent = `Skjold 2: Reducerer krigstab med ${skjoldDefense2 - skjoldDefense1} ekstra / ${skjoldDefense2} i alt. Koster ${skjoldCost2} bjørnedyr.`;
         } else if (event.target === skjoldUp3) {
-            tooltip.textContent = `Skjold 3: Reducerer krigstab med ${skjoldDefense3 - skjoldDefense2} ekstra / ${skjoldDefense3} i alt. Koster ${formatNumber(skjoldCost3)} bjørnedyr.`;
+            tooltip.textContent = `Skjold 3: Reducerer krigstab med ${skjoldDefense3 - skjoldDefense2} ekstra / ${skjoldDefense3} i alt. Koster ${skjoldCost3} bjørnedyr.`;
         }
         else if (event.target === medicinUp1) {
-            tooltip.textContent = `Medicin: Reducerer sygdom til 30%. Koster ${formatNumber(medicinCost1)} bjørnedyr.`;
+            tooltip.textContent = `Medicin: Reducerer sygdom til 30%. Koster ${medicinCost1} bjørnedyr.`;
         } else if (event.target === medicinUp2) {
-            tooltip.textContent = `Medicin 2: Reducerer sygdom til 10%. Koster ${formatNumber(medicinCost2)} bjørnedyr.`;
+            tooltip.textContent = `Medicin 2: Reducerer sygdom til 10%. Koster ${medicinCost2} bjørnedyr.`;
         } else if (event.target === medicinUp3) {
-            tooltip.textContent = `Medicin 3: Reducerer sygdom til 0%. Koster ${formatNumber(medicinCost3)} bjørnedyr.`;
+            tooltip.textContent = `Medicin 3: Reducerer sygdom til 0%. Koster ${medicinCost3} bjørnedyr.`;
         }
         else if (event.target === katastrofeUp) {
-            tooltip.textContent = `Forsinkelse: Forsink den næste katastrofe med ${katastrofeDelay1} sekunder. Koster ${formatNumber(katastrofeCost)} bjørnedyr.`;
+            tooltip.textContent = `Forsinkelse: Forsink den næste katastrofe med ${katastrofeDelay1} sekunder. Koster ${katastrofeCost} bjørnedyr.`;
         } else if (event.target === katastrofeUp2) {
-            tooltip.textContent = `Forsinkelse 2: Forsink den næste katastrofe med ${katastrofeDelay2} sekunder. Koster ${formatNumber(katastrofeCost2)} bjørnedyr.`;
+            tooltip.textContent = `Forsinkelse 2: Forsink den næste katastrofe med ${katastrofeDelay2} sekunder. Koster ${katastrofeCost2} bjørnedyr.`;
         } else if (event.target === katastrofeUp3) {
-            tooltip.textContent = `Forsinkelse 3: Forsink den næste katastrofe med ${katastrofeDelay3} sekunder. Koster ${formatNumber(katastrofeCost3)} bjørnedyr.`;
+            tooltip.textContent = `Forsinkelse 3: Forsink den næste katastrofe med ${katastrofeDelay3} sekunder. Koster ${katastrofeCost3} bjørnedyr.`;
         }
         else if (event.target === formeringUp) {
-            tooltip.textContent = `Formering: Bjørnedyr per sekund +1. Koster ${formatNumber(formeringCost)} bjørnedyr.`;
+            tooltip.textContent = `Formering: Bjørnedyr per sekund +1. Koster ${formeringCost} bjørnedyr.`;
         }
     });
 
@@ -594,6 +642,11 @@ katastrofeUp3.onclick = function () {
 formeringUp.onclick = function () {
     if (!start){
         start = true;
+        updateUI()
+        return
+    }
+    if(gameOver){
+        restart()
         updateUI()
         return
     }
@@ -638,7 +691,7 @@ function handlePointLoss() {
         }
         count -= warLoss;
         showChangeLabel(-warLoss);
-        katastrofeLabel.textContent = `Krig: Du har mistet ${formatNumber(warLoss)} bjørnedyr.`;
+        katastrofeLabel.textContent = `Krig: Du har mistet ${warLoss} bjørnedyr.`;
 
         baseWarLoss *= 2; // Fordobl kun efter en krig
     } else if (nextCatastrophe === "Sygdom") {
@@ -668,8 +721,8 @@ function handlePointLoss() {
             katastrofeLabel.textContent = `Sygdom: Du har ikke mistet nogen af dine bjørnedyr.`;
         }
         else {
-        katastrofeLabel.textContent = `Sygdom: Du har mistet ${formatNumber(sygdomsLoss*100)}% af dine bjørnedyr.`;
-        showChangeLabel(formatNumber(-sygdomsLoss*count));
+        katastrofeLabel.textContent = `Sygdom: Du har mistet ${sygdomsLoss*100}% af dine bjørnedyr.`;
+        showChangeLabel((-sygdomsLoss*count));
         }
     }
 
@@ -686,7 +739,7 @@ function handlePointLoss() {
 }
 
 // Katastrofe-nedtælling med forsinkelse
-const gameTimer = setInterval(function () {
+let gameTimer = setInterval(function () {
     if (gameOver) return;
     if (!start) return;
     if (countdown > 1) {
@@ -706,10 +759,14 @@ function checkGameOver() {
         gameOver = true;
         gameOverLabel.textContent = "Du har tabt spillet!";
         gameOverLabel.style.display = "block";
+        document.body.style.backgroundColor = "hsl(0, 0.00%, 36.90%)";
         clearInterval(gameTimer);
         saveLeaderboardData(playerUsername, level);
+        updateUI();
     }
 }
+
+
 
 
 
@@ -802,7 +859,7 @@ async function logout() {
 window.logout = logout;
 
 // Liste over forbudte ord (kan udvides)
-const bannedWords = ["ligma", "balls", "deez", "nuts", "admin", "grim", "ugly", "nigger", "nigga", "niga", "neger", "negger", "negga", "sligma", "sut", "slikma", "menneske", "mennesker", "bozo", "bøsse", "gay", "homo", "dum", "trans", "transkønnet", "transformer"];
+const bannedWords = ["lukas granum", "ligma", "balls", "deez", "nuts", "admin", "grim", "ugly", "nigger", "nigga", "niga", "neger", "negger", "negga", "sligma", "sut", "slikma", "menneske", "mennesker", "bozo", "bøsse", "gay", "homo", "dum", "transkønnet", "trans", "transformer", "pik", "cock", "penis", "dick", "tissemand", "kønsdele"];
 
 // Funktion til at validere brugernavnet
 
@@ -900,7 +957,7 @@ function displayLeaderboard(leaderboardData) {
 }
 
 // Funktion til at gemme brugerens data på leaderboardet
-async function saveLeaderboardData(username, level) {
+async function saveLeaderboardData(username, level, count) {
     const validationResult = isValidUsername(username);
     if (validationResult !== true) {
         console.error("Ugyldigt brugernavn, data bliver ikke gemt:", validationResult);
