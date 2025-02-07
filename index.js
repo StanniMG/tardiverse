@@ -802,7 +802,7 @@ async function logout() {
 window.logout = logout;
 
 // Liste over forbudte ord (kan udvides)
-const bannedWords = ["ligma", "balls", "deez", "nuts", "admin", "grim", "ugly"];
+const bannedWords = ["ligma", "balls", "deez", "nuts", "admin", "grim", "ugly", "nigger", "nigga", "niga", "neger", "negger", "negga", "sligma", "sut", "slikma", "menneske", "mennesker", "bozo"];
 
 // Funktion til at validere brugernavnet
 
