@@ -109,19 +109,19 @@ function updateUI() {
     talLabel.textContent = `${(count)}`;
     increasePerSecLabel.textContent = `${(countPerSec)} bjørnedyr per sekund`;
     levelLabel.textContent = `Level: ${level}`;
-    formeringUp.textContent = `Formering ${(formeringCost)}`;
-    celledelingUp.textContent = `Celledeling 1 ${(celledelingCost)}`;
-    celledelingUp2.textContent = `Celledeling 2 ${(celledelingCost2)}`
-    celledelingUp3.textContent = `Celledeling 3 ${(celledelingCost3)}`
-    skjoldUp.textContent = `Skjold 1 ${(skjoldCost)}`;
-    skjoldUp2.textContent = `Skjold 2 ${(skjoldCost2)}`;
-    skjoldUp3.textContent = `Skjold 3 ${(skjoldCost3)}`;
-    medicinUp1.textContent = `Medicin 1 ${(medicinCost1)}`;
-    medicinUp2.textContent = `Medicin 2 ${(medicinCost2)}`;
-    medicinUp3.textContent = `Medicin 3 ${(medicinCost3)}`;
-    katastrofeUp.textContent = `Forsinkelse 1 ${(katastrofeCost)}`;
-    katastrofeUp2.textContent = `Forsinkelse 2 ${(katastrofeCost2)}`;
-    katastrofeUp3.textContent = `Forsinkelse 3 ${(katastrofeCost3)}`;
+    formeringUp.textContent = `Formering (${formeringCost})`;
+    celledelingUp.textContent = `Celledeling 1 (${celledelingCost})`;
+    celledelingUp2.textContent = `Celledeling 2 (${celledelingCost2})`
+    celledelingUp3.textContent = `Celledeling 3 (${celledelingCost3})`
+    skjoldUp.textContent = `Skjold 1 (${skjoldCost})`;
+    skjoldUp2.textContent = `Skjold 2 (${skjoldCost2})`;
+    skjoldUp3.textContent = `Skjold 3 (${skjoldCost3})`;
+    medicinUp1.textContent = `Medicin 1 (${medicinCost1})`;
+    medicinUp2.textContent = `Medicin 2 (${medicinCost2})`;
+    medicinUp3.textContent = `Medicin 3 (${medicinCost3})`;
+    katastrofeUp.textContent = `Forsinkelse 1 (${katastrofeCost})`;
+    katastrofeUp2.textContent = `Forsinkelse 2 (${katastrofeCost2})`;
+    katastrofeUp3.textContent = `Forsinkelse 3 (${katastrofeCost3})`;
     let adjustedWarLoss = baseWarLoss; // Brug kun baseWarLoss
     if (skjoldActive) {
         if (skjoldActive2){
