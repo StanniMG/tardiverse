@@ -39,10 +39,10 @@ let newCelledelingCountdown = celledelingCountdown;
 let level = 0; // Start-level
 let baseWarLoss = 100;
 let nextCatastrophe = "krig"; // Starter med krig eller sygdom
+let baseUpgradeLoss = 1;
 let baseSygdomsLoss = 0.5;
 let sygdomsLoss = baseSygdomsLoss;
 let upgradeLoss = baseUpgradeLoss;
-let baseUpgradeLoss = 1;
 let start = false
 // Upgrades
 
