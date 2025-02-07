@@ -62,7 +62,7 @@ let skjoldCost2 = 150;
 let skjoldCost3 = 300;
 let skjoldDefense1 = 70
 let skjoldDefense2 = 300
-let skjoldDefense3 = 600
+let skjoldDefense3 = 700
 
 // Medicin
 let medicinActive1 = false;
@@ -324,6 +324,27 @@ sygdomsLossPreviewLabel.textContent = `Tab ved næste Sygdom: ${formatNumber(adj
 // Initial UI setup
 updateUI();
 
+function showChangeLabel(amount) {
+    // Hvis amount er positivt, vises et grønt tal med et + foran,
+    // hvis det er negativt, vises tallet i rødt.
+    if (amount > 0) {
+        bonusLabel.textContent = `+${formatNumber(amount)}`;
+        bonusLabel.style.color = "hsl(120, 100%, 40%)";
+    } else if (amount < 0) {
+        bonusLabel.textContent = `${formatNumber(amount)}`;
+        bonusLabel.style.color = "hsl(10, 100.00%, 50.00%)";
+    } else {
+        bonusLabel.textContent = "0";
+        bonusLabel.style.color = "black";
+    }
+    bonusLabel.style.opacity = 1;
+    // Skjul labelen efter 1 sekund
+    setTimeout(() => {
+        bonusLabel.style.opacity = 0;
+    }, 1000);
+}
+
+
 // Celledeling-knap
 celledelingUp.onclick = function () {
     if (!start){
@@ -331,6 +352,7 @@ celledelingUp.onclick = function () {
     }
     
     if (count >= celledelingCost && !celledelingActive) {
+        showChangeLabel(-celledelingCost);
         celledelingActive = true;
         count -= celledelingCost;
         celledelingCountdownLabel.style.display = "inline-block";
@@ -342,15 +364,9 @@ celledelingUp.onclick = function () {
                 if (newCelledelingCountdown > 1) {
                     newCelledelingCountdown--;
                 } else {
-                    const bonus = Math.floor(count * 0.1); // 10% af bjørnedyr
+                    const bonus = Math.floor(count * 0.1);
                     count += bonus;
-
-                    bonusLabel.textContent = `+${formatNumber(bonus)}`;
-                    bonusLabel.style.opacity = 1;
-
-                    setTimeout(() => {
-                        bonusLabel.style.opacity = 0;
-                    }, 1000);
+                    showChangeLabel(bonus);
 
                     newCelledelingCountdown = celledelingCountdown;
                 }
@@ -365,6 +381,7 @@ celledelingUp2.onclick = function () {
         return
     }
     if (count >= celledelingCost2 && celledelingActive && !celledelingActive2) {
+        showChangeLabel(-celledelingCost);
         celledelingActive2 = true;
         count -= celledelingCost2;
         updateUI();
@@ -374,17 +391,11 @@ celledelingUp2.onclick = function () {
                 if (newCelledelingCountdown > 1) {
                     newCelledelingCountdown--;
                 } else {
-                    const bonus = Math.floor(count * 0.2); // 10% af bjørnedyr
+                    const bonus = Math.floor(count * 0.1);
                     count += bonus;
+                    showChangeLabel(bonus);
 
-                    bonusLabel.textContent = `+${formatNumber(bonus)}`;
-                    bonusLabel.style.opacity = 1;
-
-                    setTimeout(() => {
-                        bonusLabel.style.opacity = 0;
-                    }, 1000);
-
-                    newCelledelingCountdown = 10;
+                    newCelledelingCountdown = celledelingCountdown;
                 }
                 updateUI();
             }
@@ -397,6 +408,7 @@ celledelingUp3.onclick = function () {
         return
     }
     if (count >= celledelingCost3 && celledelingActive2 && !celledelingActive3) {
+        showChangeLabel(-celledelingCost3);
         celledelingActive3 = true;
         count -= celledelingCost3;
         updateUI();
@@ -406,17 +418,11 @@ celledelingUp3.onclick = function () {
                 if (newCelledelingCountdown > 1) {
                     newCelledelingCountdown--;
                 } else {
-                    const bonus = Math.floor(count * 0.4); // 10% af bjørnedyr
+                    const bonus = Math.floor(count * 0.1);
                     count += bonus;
+                    showChangeLabel(bonus);
 
-                    bonusLabel.textContent = `+${formatNumber(bonus)}`;
-                    bonusLabel.style.opacity = 1;
-
-                    setTimeout(() => {
-                        bonusLabel.style.opacity = 0;
-                    }, 1000);
-
-                    newCelledelingCountdown = 10;
+                    newCelledelingCountdown = celledelingCountdown;
                 }
                 updateUI();
             }
@@ -430,6 +436,7 @@ skjoldUp.onclick = function () {
         return
     }
     if (count >= skjoldCost && !skjoldActive) {
+        showChangeLabel(-skjoldCost);
         skjoldActive = true;
         count -= skjoldCost;
         updateUI();
@@ -441,6 +448,7 @@ skjoldUp2.onclick = function () {
         return
     }
     if (count >= skjoldCost2 && skjoldActive && !skjoldActive2) {
+        showChangeLabel(-skjoldCost2);
         skjoldActive2 = true;
         count -= skjoldCost2;
         updateUI();
@@ -452,6 +460,7 @@ skjoldUp3.onclick = function () {
         return
     }
     if (count >= skjoldCost3 && skjoldActive2 && !skjoldActive3) {
+        showChangeLabel(-skjoldCost3);
         skjoldActive3 = true;
         count -= skjoldCost3;
         updateUI();
@@ -464,6 +473,7 @@ medicinUp1.onclick = function () {
         return
     }
     if (count >= medicinCost1 && !medicinActive1) {
+        showChangeLabel(-medicinCost1);
         medicinActive1 = true;
         count -= medicinCost1;
         updateUI();
@@ -475,6 +485,7 @@ medicinUp2.onclick = function () {
         return
     }
     if (count >= medicinCost2 && medicinActive1 && !medicinActive2) {
+        showChangeLabel(-medicinCost2);
         medicinActive2 = true;
         count -= medicinCost2;
         updateUI();
@@ -486,6 +497,7 @@ medicinUp3.onclick = function () {
         return
     }
     if (count >= medicinCost3 && medicinActive2 && !medicinActive3) {
+        showChangeLabel(-medicinCost3);
         medicinActive3 = true;
         count -= medicinCost3;
         updateUI();
@@ -498,6 +510,7 @@ katastrofeUp.onclick = function () {
         return
     }
     if (count >= katastrofeCost && !katastrofeUpActive) {
+        showChangeLabel(-katastrofeCost);
         count -= katastrofeCost;
         katastrofeUpActive = true;
         countdown += katastrofeDelay1;
@@ -510,6 +523,7 @@ katastrofeUp2.onclick = function () {
         return
     }
     if (count >= katastrofeCost2 && katastrofeUpActive && !katastrofeUpActive2) {
+        showChangeLabel(-katastrofeCost2);
         count -= katastrofeCost2;
         katastrofeUpActive2 = true;
         countdown += katastrofeDelay2;
@@ -522,6 +536,7 @@ katastrofeUp3.onclick = function () {
         return
     }
     if (count >= katastrofeCost3 && katastrofeUpActive2 && !katastrofeUpActive3) {
+        showChangeLabel(-katastrofeCost3);
         count -= katastrofeCost3;
         katastrofeUpActive3 = true;
         countdown += katastrofeDelay3;
@@ -584,6 +599,7 @@ formeringUp.onclick = function () {
     }
     if (count >= formeringCost) {
         count -= formeringCost;
+        showChangeLabel(-formeringCost);
         countPerSec += plusIncreasePerSec;
         updateUI();
     }
@@ -621,6 +637,7 @@ function handlePointLoss() {
             warLoss = 0;
         }
         count -= warLoss;
+        showChangeLabel(-warLoss);
         katastrofeLabel.textContent = `Krig: Du har mistet ${formatNumber(warLoss)} bjørnedyr.`;
 
         baseWarLoss *= 2; // Fordobl kun efter en krig
@@ -652,6 +669,7 @@ function handlePointLoss() {
         }
         else {
         katastrofeLabel.textContent = `Sygdom: Du har mistet ${formatNumber(sygdomsLoss*100)}% af dine bjørnedyr.`;
+        showChangeLabel(formatNumber(-sygdomsLoss*count));
         }
     }
 
