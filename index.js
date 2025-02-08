@@ -35,7 +35,7 @@ let formeringCost = 50;
 let plusIncreasePerSec = 1;
 
 let countdown = 20; // Tid i sekunder
-let gameOver = false;
+let gameOver = true;
 let celledelingCountdown = 7; // Tid til celledeling-bonus
 let newCelledelingCountdown = celledelingCountdown;
 let level = 0; // Start-level
@@ -161,6 +161,9 @@ function updateUI() {
         }
     } else {
         adjustedSygdomsLoss = baseSygdomsLoss;
+    }
+    if (upgradeLoss < 0){
+        upgradeLoss = 0;
     }
     sygdomsLossPreviewLabel.textContent = `Tab ved næste Sygdom: ${adjustedSygdomsLoss * 100}%, og ${upgradeLoss} formering upgrades.`;
 
@@ -374,8 +377,8 @@ function restart() {
     katastrofeUpActive2 = false;
     katastrofeUpActive3 = false;
 
-    baseSygdomsLoss = 1;
-    sygdomsLoss = baseSygdomsLoss;
+    baseUpgradeLoss = 1;
+    upgradeLoss = baseUpgradeLoss;
     countPerSec = 2;
     countdown = 20;
     gameOver = false;
@@ -389,25 +392,11 @@ function restart() {
     katastrofeLabel.style.display = "none";
 
     document.body.style.backgroundColor = "hsl(0, 0%, 95%)";
-    
 
-    // Ryd den gamle timer, hvis den kører
-    clearInterval(gameTimer);
-
-    // Start en ny timer for katastrofe-nedtælling
-    gameTimer = setInterval(function () {
-        if (gameOver) return;
-        if (!start) return;
-        if (countdown > 1) {
-            countdown--;
-            countdownLabel.textContent = `Tid til ${nextCatastrophe}: ${countdown} sekunder`;
-        } else {
-            handlePointLoss();
-        }
-    }, 1000);
 
     updateUI();
 }
+
 
 
 
@@ -681,6 +670,12 @@ setInterval(function () {
     if (!start) return;
     if (!gameOver) {
         count += countPerSec;
+        if (countdown > 1) {
+            countdown--;
+            countdownLabel.textContent = `Tid til ${nextCatastrophe}: ${countdown} sekunder`;
+        } else {
+            handlePointLoss();
+        }
         updateUI();
     }
 }, 1000);
@@ -769,18 +764,7 @@ function handlePointLoss() {
     countdown = 20 //+ katastrofeDelay; // Tilføj forsinkelse
 }
 
-// Katastrofe-nedtælling med forsinkelse
-let gameTimer = setInterval(function () {
-    if (gameOver) return;
-    if (!start) return;
-    if (countdown > 1) {
-        countdown--;
-        countdownLabel.textContent = `Tid til ${nextCatastrophe}: ${countdown} sekunder`;
-    } else {
-        handlePointLoss();
-    }
-}, 1000);
-updateUI();
+
 
 
 // Check if the game is over
