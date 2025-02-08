@@ -26,6 +26,8 @@ const katastrofeUp2 = document.getElementById("katastrofeUp2");
 const katastrofeUp3 = document.getElementById("katastrofeUp3");
 const formeringUp = document.getElementById("formeringUp");
 
+
+
 // Variables
 let count = 200;
 let countPerSec = 2;
@@ -38,7 +40,7 @@ let celledelingCountdown = 7; // Tid til celledeling-bonus
 let newCelledelingCountdown = celledelingCountdown;
 let level = 0; // Start-level
 let baseWarLoss = 100;
-let nextCatastrophe = "krig"; // Starter med krig eller sygdom
+let nextCatastrophe = "Krig"; // Starter med Krig eller Sygdom
 let baseUpgradeLoss = 1;
 let baseSygdomsLoss = 0.5;
 let sygdomsLoss = baseSygdomsLoss;
@@ -368,6 +370,8 @@ function restart() {
     katastrofeUpActive2 = false;
     katastrofeUpActive3 = false;
 
+    baseSygdomsLoss = 1;
+    sygdomsLoss = baseSygdomsLoss;
     countPerSec = 2;
     countdown = 20;
     gameOver = false;
@@ -378,8 +382,10 @@ function restart() {
     nextCatastrophe = "Krig";
     gameOverLabel.style.display = "none";
     celledelingCountdownLabel.style.display = "none";
+    katastrofeLabel.style.display = "none";
+    
     document.body.style.backgroundColor = "hsl(0, 0%, 95%)";
-    baseUpgradeLoss = 1;
+    
 
     // Ryd den gamle timer, hvis den kører
     clearInterval(gameTimer);
@@ -697,8 +703,8 @@ function handlePointLoss() {
         if (warLoss < 0){
             warLoss = 0;
         }
+
         count -= warLoss;
-        
         if (warLoss == 0) {
             katastrofeLabel.textContent = `Krig: Du har ikke mistet nogen bjørnedyr.`;
         }
@@ -732,9 +738,8 @@ function handlePointLoss() {
         }
         
         if (upgradeLoss < 0) {
-            upgradeLoss = 0
+            upgradeLoss = 0;
         }
-        countPerSec -= upgradeLoss
         
         if (sygdomsLoss == 0) {
             katastrofeLabel.textContent = `Sygdom: Du har ikke mistet nogen af dine bjørnedyr.`;
@@ -743,9 +748,8 @@ function handlePointLoss() {
         katastrofeLabel.textContent = `Sygdom: Du har mistet ${sygdomsLoss*100}% / ${Math.round(sygdomsLoss*count)} af dine bjørnedyr , og ${upgradeLoss} formering upgrades.`;
         showChangeLabel(Math.round(-sygdomsLoss*count));
         }
-        
-        countPerSec -= upgradeLoss
-        baseUpgradeLoss *= 2
+        countPerSec -= upgradeLoss;
+        baseUpgradeLoss *= 2;
     }
 
     level++; // Øg level efter hver katastrofe
@@ -754,7 +758,7 @@ function handlePointLoss() {
     katastrofeLabel.style.display = "block";
     setTimeout(() => {
         katastrofeLabel.style.display = "none";
-    }, 10000);
+    }, 5000);
     nextCatastrophe = nextCatastrophe === "Krig" ? "Sygdom" : "Krig";
     checkGameOver();
     countdown = 20 //+ katastrofeDelay; // Tilføj forsinkelse
