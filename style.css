@@ -95,8 +95,8 @@ body {
 
 /* Mindre mellemrum mellem spillerne */
 #leaderboard p {
-    margin: 9px 0; /* Mindre margin mellem spillere */
-    padding: 1px 0; /* Mindre padding */
+    margin: 10px 0; /* Mindre margin mellem spillere */
+    padding: 5px 0; /* Mindre padding */
     font-size: 1em; /* Eventuelt reducere fontstørrelse lidt */
 }
 
@@ -104,6 +104,23 @@ body {
     text-align: center;
     margin-top: 5px;
     margin-bottom: 10px;
+}
+
+#leaderboardHeader {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 240px; /* Justér bredden efter behov */
+}
+
+#toggleLeaderboard {
+    background: none;
+    border: none;
+    font-size: 16px;
+    cursor: pointer;
+    padding: 5px;
+    font-size: 1.3em;
+    font-weight: bold;
 }
 
 
