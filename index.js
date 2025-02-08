@@ -666,7 +666,7 @@ formeringUp.onclick = function () {
 };
 
 // Auto-increment points per second
-setInterval(function () {
+let gameTimer = setInterval(function () {
     if (!start) return;
     if (!gameOver) {
         count += countPerSec;
