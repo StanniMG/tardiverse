@@ -379,6 +379,7 @@ function restart() {
     gameOverLabel.style.display = "none";
     celledelingCountdownLabel.style.display = "none";
     document.body.style.backgroundColor = "hsl(0, 0%, 95%)";
+    baseUpgradeLoss = 1;
 
     // Ryd den gamle timer, hvis den kører
     clearInterval(gameTimer);
@@ -733,6 +734,7 @@ function handlePointLoss() {
         if (upgradeLoss < 0) {
             upgradeLoss = 0
         }
+        countPerSec -= upgradeLoss
         
         if (sygdomsLoss == 0) {
             katastrofeLabel.textContent = `Sygdom: Du har ikke mistet nogen af dine bjørnedyr.`;
