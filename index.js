@@ -35,7 +35,7 @@ let formeringCost = 50;
 let plusIncreasePerSec = 1;
 
 let countdown = 20; // Tid i sekunder
-let gameOver = true;
+let gameOver = false;
 let celledelingCountdown = 7; // Tid til celledeling-bonus
 let newCelledelingCountdown = celledelingCountdown;
 let level = 0; // Start-level
