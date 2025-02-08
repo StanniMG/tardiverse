@@ -143,22 +143,26 @@ function updateUI() {
     }
     warLossPreviewLabel.textContent = `Tab ved næste krig: ${(adjustedWarLoss)}`;
 
-// Medicin: Beregn den justerede procentvise tab ved næste sygdom
-let adjustedSygdomsLoss = baseSygdomsLoss; // starter med 50% (0.5)
-if (medicinActive1) {
-    if (medicinActive2) {
-        if (medicinActive3) {
-            adjustedSygdomsLoss = 0; // Ingen tab, hvis alle tre er opgraderet
+    // Medicin: Beregn den justerede procentvise tab ved næste sygdom
+    let adjustedSygdomsLoss = baseSygdomsLoss; // starter med 50% (0.5)
+    upgradeLoss = baseUpgradeLoss;
+    if (medicinActive1) {
+        if (medicinActive2) {
+            if (medicinActive3) {
+                adjustedSygdomsLoss = 0; // Ingen tab, hvis alle tre er opgraderet
+                upgradeLoss -= 3;
+            } else {
+                adjustedSygdomsLoss = 0.15;
+                upgradeLoss -= 2;
+            }
         } else {
-            adjustedSygdomsLoss = 0.15;
+            adjustedSygdomsLoss = 0.3;
+            upgradeLoss -= 1;
         }
     } else {
-        adjustedSygdomsLoss = 0.3;
+        adjustedSygdomsLoss = baseSygdomsLoss;
     }
-} else {
-    adjustedSygdomsLoss = baseSygdomsLoss;
-}
-sygdomsLossPreviewLabel.textContent = `Tab ved næste Sygdom: ${adjustedSygdomsLoss * 100}%, og ${baseUpgradeLoss} formering upgrades.`;
+    sygdomsLossPreviewLabel.textContent = `Tab ved næste Sygdom: ${adjustedSygdomsLoss * 100}%, og ${upgradeLoss} formering upgrades.`;
 
 
     // Celledeling-status
@@ -383,7 +387,7 @@ function restart() {
     gameOverLabel.style.display = "none";
     celledelingCountdownLabel.style.display = "none";
     katastrofeLabel.style.display = "none";
-    
+
     document.body.style.backgroundColor = "hsl(0, 0%, 95%)";
     
 
@@ -715,22 +719,23 @@ function handlePointLoss() {
 
         baseWarLoss *= 2; // Fordobl kun efter en krig
     } else if (nextCatastrophe === "Sygdom") {
+        upgradeLoss = baseUpgradeLoss;
         if (medicinActive1) {
             if (medicinActive2) {
                 if (medicinActive3) {
-                    sygdomsLoss = 0
-                    upgradeLoss -= 3
+                    sygdomsLoss = 0;
+                    upgradeLoss -= 3;
                 }
                 else {
                     sygdomsLoss = 0.15;
                     count = Math.round(count * sygdomsLoss);
-                    upgradeLoss -= 2
+                    upgradeLoss -= 2;
                 }
             }
             else {
                 sygdomsLoss = 0.3;
                 count = Math.round(count * sygdomsLoss);
-                upgradeLoss -= 1
+                upgradeLoss -= 1;
             }
         }
         else {
@@ -885,7 +890,7 @@ async function logout() {
 window.logout = logout;
 
 // Liste over forbudte ord (kan udvides)
-const bannedWords = ["lukas granum", "ligma", "balls", "deez", "nuts", "admin", "grim", "ugly", "nigger", "nigga", "niga", "neger", "negger", "negga", "sligma", "sut", "slikma", "menneske", "mennesker", "bozo", "bøsse", "gay", "homo", "dum", "transkønnet", "trans", "transformer", "pik", "cock", "penis", "dick", "tissemand", "kønsdele"];
+const bannedWords = ["lukas granum", "lucas granum med k", "ligma", "balls", "deez", "nuts", "admin", "grim", "ugly", "nigger", "nigga", "niga", "neger", "negger", "negga", "sligma", "sut", "slikma", "menneske", "mennesker", "bozo", "bøsse", "gay", "homo", "dum", "transkønnet", "trans", "transformer", "pik", "cock", "penis", "dick", "tissemand", "kønsdele"];
 
 // Funktion til at validere brugernavnet
 
@@ -968,22 +973,48 @@ async function fetchLeaderboard() {
 
 
 
-
-
 // Funktion til at vise leaderboard
 function displayLeaderboard(leaderboardData) {
     const leaderboardContainer = document.getElementById("leaderboard");
-    leaderboardContainer.innerHTML = "<h3>Leaderboard</h3>";
+    leaderboardContainer.innerHTML = `
+        <div id="leaderboardHeader">
+            <h3>Leaderboard</h3> 
+            <button id="toggleLeaderboard">v</button>
+        </div>
+        <div id="leaderboardContent"></div>
+    `;
+
+    const contentContainer = document.getElementById("leaderboardContent");
+
     if (leaderboardData.length === 0) {
-        leaderboardContainer.innerHTML += "<p>Ingen spillere på leaderboardet endnu.</p>";
+        contentContainer.innerHTML = "<p>Ingen spillere på leaderboardet endnu.</p>";
+    } else {
+        leaderboardData.forEach(entry => {
+            contentContainer.innerHTML += `<p>${entry.username}: Level ${entry.level}</p>`;
+        });
     }
-    leaderboardData.forEach(entry => {
-        leaderboardContainer.innerHTML += `<p>${entry.username}: Level ${entry.level}</p>`;
-    });
+
+    // Tilføj event listener til knappen
+    document.getElementById("toggleLeaderboard").addEventListener("click", toggleLeaderboard);
 }
 
+// Funktion til at skjule/vise leaderboardet
+function toggleLeaderboard() {
+    const contentContainer = document.getElementById("leaderboardContent");
+    const toogleLeaderboardBtn = document.getElementById("toggleLeaderboard")
+    if (contentContainer.style.display === "none") {
+        contentContainer.style.display = "block"; // Vis leaderboard
+        toogleLeaderboardBtn.textContent = "v"
+    } else {
+        contentContainer.style.display = "none"; // Skjul leaderboard
+        toogleLeaderboardBtn.textContent = ">"
+    }
+}
+
+
+
 // Funktion til at gemme brugerens data på leaderboardet
-async function saveLeaderboardData(username, level, count) {
+async function saveLeaderboardData(username, level) {
     const validationResult = isValidUsername(username);
     if (validationResult !== true) {
         console.error("Ugyldigt brugernavn, data bliver ikke gemt:", validationResult);
