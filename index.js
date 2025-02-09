@@ -239,7 +239,7 @@ function updateUI() {
     else {
         skjoldUp2.classList.remove("can-buy", "purchased");
     }
-    
+
     if (skjoldActive3) {
         skjoldUp3.classList.remove("can-buy");
         skjoldUp3.classList.add("purchased");
@@ -361,6 +361,8 @@ function showChangeLabel(amount) {
     }, 1000);
 }
 
+let celledelingTimer = null; // Gem timer-ID'et globalt
+
 function restart() {
     // Nulstil variabler
     count = 200;
@@ -393,19 +395,58 @@ function restart() {
 
     document.body.style.backgroundColor = "hsl(0, 0%, 95%)";
 
+    // Ryd gammel celledeling-timer
+    if (celledelingTimer) {
+        clearInterval(celledelingTimer);
+        celledelingTimer = null;
+    }
 
     updateUI();
 }
 
+// Fælles funktion til at starte celledeling-timeren
+function startCelledelingTimer() {
+    if (celledelingTimer) {
+        clearInterval(celledelingTimer);
+    }
 
+    celledelingTimer = setInterval(() => {
+        if (gameOver) return;
 
+        if (celledelingActive || celledelingActive2 || celledelingActive3) {
+            if (newCelledelingCountdown > 1) {
+                newCelledelingCountdown--;
+            } else {
+                if (celledelingActive3) {
+                    const bonus = Math.round(count * 0.3);
+                    count += bonus;
+                    showChangeLabel(bonus);
+                    newCelledelingCountdown = celledelingCountdown;
+                }
+                else if (celledelingActive2) {
+                    const bonus = Math.round(count * 0.2);
+                    count += bonus;
+                    showChangeLabel(bonus);
+                    newCelledelingCountdown = celledelingCountdown;
+                }
+                else {
+                    const bonus = Math.round(count * 0.1);
+                    count += bonus;
+                    showChangeLabel(bonus);
+                    newCelledelingCountdown = celledelingCountdown;
+                }
+                
+
+            }
+            updateUI();
+        }
+    }, 1000);
+}
 
 // Celledeling-knap
 celledelingUp.onclick = function () {
-    if (!start){
-        return
-    }
-    
+    if (!start || gameOver) return;
+
     if (count >= celledelingCost && !celledelingActive) {
         showChangeLabel(-celledelingCost);
         celledelingActive = true;
@@ -413,77 +454,34 @@ celledelingUp.onclick = function () {
         celledelingCountdownLabel.style.display = "inline-block";
         newCelledelingCountdown = celledelingCountdown;
         updateUI();
-
-        setInterval(() => {
-            if (celledelingActive && !celledelingActive2 && !gameOver) {
-                if (newCelledelingCountdown > 1) {
-                    newCelledelingCountdown--;
-                } else {
-                    const bonus = Math.floor(count * 0.1);
-                    count += bonus;
-                    showChangeLabel(bonus);
-
-                    newCelledelingCountdown = celledelingCountdown;
-                }
-                updateUI();
-            }
-        }, 1000);
+        startCelledelingTimer(); // Start timeren
     }
 };
 
 celledelingUp2.onclick = function () {
-    if (!start){
-        return
-    }
+    if (!start || gameOver) return;
+
     if (count >= celledelingCost2 && celledelingActive && !celledelingActive2) {
-        showChangeLabel(-celledelingCost);
+        showChangeLabel(-celledelingCost2);
         celledelingActive2 = true;
         count -= celledelingCost2;
         updateUI();
-
-        setInterval(() => {
-            if (celledelingActive2 && !celledelingActive3 && !gameOver) {
-                if (newCelledelingCountdown > 1) {
-                    newCelledelingCountdown--;
-                } else {
-                    const bonus = Math.floor(count * 0.1);
-                    count += bonus;
-                    showChangeLabel(bonus);
-
-                    newCelledelingCountdown = celledelingCountdown;
-                }
-                updateUI();
-            }
-        }, 1000);
+        startCelledelingTimer(); // Sikrer, at timeren kun kører én gang
     }
 };
 
 celledelingUp3.onclick = function () {
-    if (!start){
-        return
-    }
+    if (!start || gameOver) return;
+
     if (count >= celledelingCost3 && celledelingActive2 && !celledelingActive3) {
         showChangeLabel(-celledelingCost3);
         celledelingActive3 = true;
         count -= celledelingCost3;
         updateUI();
-
-        setInterval(() => {
-            if (celledelingActive3 && !gameOver) {
-                if (newCelledelingCountdown > 1) {
-                    newCelledelingCountdown--;
-                } else {
-                    const bonus = Math.floor(count * 0.1);
-                    count += bonus;
-                    showChangeLabel(bonus);
-
-                    newCelledelingCountdown = celledelingCountdown;
-                }
-                updateUI();
-            }
-        }, 1000);
+        startCelledelingTimer(); // Sikrer, at timeren kun kører én gang
     }
 };
+
 
 // Skjold-knap
 skjoldUp.onclick = function () {
