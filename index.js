@@ -67,7 +67,7 @@ let skjoldCost2 = 150;
 let skjoldCost3 = 300;
 let skjoldDefense1 = 40;
 let skjoldDefense2 = 250;
-let skjoldDefense3 = 700;
+let skjoldDefense3 = 500;
 
 // Medicin
 let medicinActive1 = false;
