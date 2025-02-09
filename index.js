@@ -65,9 +65,9 @@ let skjoldActive3 = false;
 let skjoldCost = 75;
 let skjoldCost2 = 150;
 let skjoldCost3 = 300;
-let skjoldDefense1 = 70
-let skjoldDefense2 = 300
-let skjoldDefense3 = 700
+let skjoldDefense1 = 40;
+let skjoldDefense2 = 250;
+let skjoldDefense3 = 700;
 
 // Medicin
 let medicinActive1 = false;
@@ -712,7 +712,7 @@ function handlePointLoss() {
             showChangeLabel(-warLoss);
         }
 
-        baseWarLoss *= 2; // Fordobl kun efter en krig
+        baseWarLoss *= 1.5; // Fordobl kun efter en 
     } else if (nextCatastrophe === "Sygdom") {
         upgradeLoss = baseUpgradeLoss;
         if (medicinActive1) {
