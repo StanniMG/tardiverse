@@ -775,7 +775,6 @@ function checkGameOver() {
         gameOverLabel.textContent = "Du har tabt spillet!";
         gameOverLabel.style.display = "block";
         document.body.style.backgroundColor = "hsl(0, 0.00%, 36.90%)";
-        clearInterval(gameTimer);
         saveLeaderboardData(playerUsername, level);
         updateUI();
     }
