@@ -141,7 +141,7 @@ function updateUI() {
             adjustedWarLoss = 0
         }
     }
-    warLossPreviewLabel.textContent = `Tab ved næste krig: ${(adjustedWarLoss)}`;
+    warLossPreviewLabel.textContent = `Tab ved næste krig: ${Math.round(adjustedWarLoss)}`;
 
     // Medicin: Beregn den justerede procentvise tab ved næste sygdom
     let adjustedSygdomsLoss = baseSygdomsLoss; // starter med 50% (0.5)
@@ -165,7 +165,7 @@ function updateUI() {
     if (upgradeLoss < 0){
         upgradeLoss = 0;
     }
-    sygdomsLossPreviewLabel.textContent = `Tab ved næste Sygdom: ${adjustedSygdomsLoss * 100}%, og ${upgradeLoss} formering upgrades.`;
+    sygdomsLossPreviewLabel.textContent = `Tab ved næste Sygdom: ${adjustedSygdomsLoss * 100}%, og ${Math.ceil(upgradeLoss)} formering upgrades`;
 
 
     // Celledeling-status
@@ -621,9 +621,9 @@ katastrofeUp3.onclick = function () {
         else if (event.target === medicinUp1) {
             tooltip.textContent = `Medicin: Reducerer sygdom til 30%, og reducerer formerings tabet med 1. Koster ${medicinCost1} bjørnedyr.`;
         } else if (event.target === medicinUp2) {
-            tooltip.textContent = `Medicin 2: Reducerer sygdom til 10%, og reducerer formerings tabet med 2. Koster ${medicinCost2} bjørnedyr.`;
+            tooltip.textContent = `Medicin 2: Reducerer sygdom til 15%, og reducerer formerings tabet med 2. Koster ${medicinCost2} bjørnedyr.`;
         } else if (event.target === medicinUp3) {
-            tooltip.textContent = `Medicin 3: Reducerer sygdom til 0%, og reducerer formerings tabet med 3. Koster ${medicinCost3} bjørnedyr.`;
+            tooltip.textContent = `Medicin 3: Reducerer sygdom til 5%, og reducerer formerings tabet med 3. Koster ${medicinCost3} bjørnedyr.`;
         }
         else if (event.target === katastrofeUp) {
             tooltip.textContent = `Forsinkelse: Forsink den næste katastrofe med ${katastrofeDelay1} sekunder. Koster ${katastrofeCost} bjørnedyr.`;
@@ -701,15 +701,15 @@ function handlePointLoss() {
             warLoss = 0;
         }
 
-        count -= warLoss;
+        count -= Math.round(warLoss);
         if (warLoss == 0) {
             katastrofeLabel.textContent = `Krig: Du har ikke mistet nogen bjørnedyr.`;
         }
         else {
-            katastrofeLabel.textContent = `Krig: Du har mistet ${warLoss} bjørnedyr.`;
+            katastrofeLabel.textContent = `Krig: Du har mistet ${Math.round(warLoss)} bjørnedyr.`;
         }
 
-        showChangeLabel(-warLoss);
+        showChangeLabel(Math.round(-warLoss));
         baseWarLoss *= 1.5;
 
     } else if (nextCatastrophe === "Sygdom") {
@@ -717,7 +717,7 @@ function handlePointLoss() {
         if (medicinActive1) {
             if (medicinActive2) {
                 if (medicinActive3) {
-                    sygdomsLoss = 0;
+                    sygdomsLoss = 0.05;
                     upgradeLoss -= 3;
                 }
                 else {
@@ -744,11 +744,11 @@ function handlePointLoss() {
             katastrofeLabel.textContent = `Sygdom: Du har ikke mistet nogen af dine bjørnedyr eller nogen formering upgrades.`;
         }
         else {
-            katastrofeLabel.textContent = `Sygdom: Du har mistet ${sygdomsLoss*100}% / ${Math.round(sygdomsLoss*count)} af dine bjørnedyr, og ${upgradeLoss} formering upgrades.`;
+            katastrofeLabel.textContent = `Sygdom: Du har mistet ${sygdomsLoss*100}% / ${Math.round(sygdomsLoss*count)} af dine bjørnedyr, og ${Math.ceil(upgradeLoss)} formering upgrades.`;
         }
         showChangeLabel(Math.round(-sygdomsLoss*count));
-        countPerSec -= upgradeLoss;
-        baseUpgradeLoss *= 2;
+        countPerSec -= Math.ceil(upgradeLoss);
+        baseUpgradeLoss *= 1.5;
     }
 
     level++; // Øg level efter hver katastrofe
