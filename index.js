@@ -414,7 +414,7 @@ function startCelledelingTimer() {
         if (gameOver) return;
 
         if (celledelingActive || celledelingActive2 || celledelingActive3) {
-            if (newCelledelingCountdown > 1) {
+            if (newCelledelingCountdown > 1) {    
                 newCelledelingCountdown--;
             } else {
                 if (celledelingActive3) {
@@ -707,10 +707,11 @@ function handlePointLoss() {
         }
         else {
             katastrofeLabel.textContent = `Krig: Du har mistet ${warLoss} bjørnedyr.`;
-            showChangeLabel(-warLoss);
         }
 
-        baseWarLoss *= 1.5; // Fordobl kun efter en 
+        showChangeLabel(-warLoss);
+        baseWarLoss *= 1.5;
+
     } else if (nextCatastrophe === "Sygdom") {
         upgradeLoss = baseUpgradeLoss;
         if (medicinActive1) {
@@ -735,17 +736,22 @@ function handlePointLoss() {
             count = Math.round(count * sygdomsLoss); // Sygdom: Tab 50 %
         }
         
-        if (upgradeLoss < 0) {
+        if (upgradeLoss <= 0) {
             upgradeLoss = 0;
+            if (sygdomsLoss == 0) {
+                katastrofeLabel.textContent = `Sygdom: Du har ikke mistet nogen af dine bjørnedyr eller nogen formering upgrades.`;
+            }
         }
-        
-        if (sygdomsLoss == 0) {
-            katastrofeLabel.textContent = `Sygdom: Du har ikke mistet nogen af dine bjørnedyr.`;
+        else if (sygdomsLoss > 0 && upgradeLoss == 0) {
+            katastrofeLabel.textContent = `Sygdom: Du har mistet ${sygdomsLoss*100}% / ${Math.round(sygdomsLoss*count)} af dine bjørnedyr, men ikke nogen formering upgrades.`;
+        }
+        else if (sygdomsLoss == 0 && upgradeLoss > 0) {
+            katastrofeLabel.textContent = `Sygdom: Du har ikke mistet nogen af dine bjørnedyr, men du har mistet ${upgradeLoss} formering upgrades.`;
         }
         else {
-        katastrofeLabel.textContent = `Sygdom: Du har mistet ${sygdomsLoss*100}% / ${Math.round(sygdomsLoss*count)} af dine bjørnedyr , og ${upgradeLoss} formering upgrades.`;
-        showChangeLabel(Math.round(-sygdomsLoss*count));
+            katastrofeLabel.textContent = `Sygdom: Du har mistet ${sygdomsLoss*100}% / ${Math.round(sygdomsLoss*count)} af dine bjørnedyr, og ${upgradeLoss} formering upgrades.`;
         }
+        showChangeLabel(Math.round(-sygdomsLoss*count));
         countPerSec -= upgradeLoss;
         baseUpgradeLoss *= 2;
     }
