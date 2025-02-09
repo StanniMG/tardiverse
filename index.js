@@ -738,15 +738,10 @@ function handlePointLoss() {
         
         if (upgradeLoss <= 0) {
             upgradeLoss = 0;
-            if (sygdomsLoss == 0) {
-                katastrofeLabel.textContent = `Sygdom: Du har ikke mistet nogen af dine bjørnedyr eller nogen formering upgrades.`;
-            }
+
         }
-        else if (sygdomsLoss > 0 && upgradeLoss == 0) {
-            katastrofeLabel.textContent = `Sygdom: Du har mistet ${sygdomsLoss*100}% / ${Math.round(sygdomsLoss*count)} af dine bjørnedyr, men ikke nogen formering upgrades.`;
-        }
-        else if (sygdomsLoss == 0 && upgradeLoss > 0) {
-            katastrofeLabel.textContent = `Sygdom: Du har ikke mistet nogen af dine bjørnedyr, men du har mistet ${upgradeLoss} formering upgrades.`;
+        if (sygdomsLoss == 0 && upgradeLoss == 0) {
+            katastrofeLabel.textContent = `Sygdom: Du har ikke mistet nogen af dine bjørnedyr eller nogen formering upgrades.`;
         }
         else {
             katastrofeLabel.textContent = `Sygdom: Du har mistet ${sygdomsLoss*100}% / ${Math.round(sygdomsLoss*count)} af dine bjørnedyr, og ${upgradeLoss} formering upgrades.`;
