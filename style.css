@@ -51,6 +51,19 @@ body {
     z-index: -101;
 }
 
+#completedLabel {
+    display: none;
+    color: hsl(130, 95%, 30%);
+    font-weight: bold;
+    font-size: 3em;
+    margin-top: 20px;
+    padding: 20px;
+    border: 3px solid hsl(130, 95%, 30%);
+    border-radius: 10px;
+    background-color: hsl(130, 100%, 90%);
+    z-index: -101;
+}
+
 /* Katastrofe label */
 #katastrofeLabel {
     display: none;
