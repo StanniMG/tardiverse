@@ -9,6 +9,7 @@ const celledelingCountdownLabel = document.getElementById("celledelingCountdownL
 const levelLabel = document.getElementById("levelLabel");
 const warLossPreviewLabel = document.getElementById("warLossPreviewLabel");
 const sygdomsLossPreviewLabel = document.getElementById("sygdomsLossPreviewLabel");
+const completedLabel = document.getElementById("completedLabel");
 
 
 // Upgrade buttons
@@ -26,15 +27,33 @@ const katastrofeUp2 = document.getElementById("katastrofeUp2");
 const katastrofeUp3 = document.getElementById("katastrofeUp3");
 const formeringUp = document.getElementById("formeringUp");
 
+// Opret lydobjekter
+const clickSounds = [
+    new Audio("lyde/klik/klik_1.wav"),
+    new Audio("lyde/klik/klik_2.wav")
+];
+
+// Find alle knapper med klassen "upgrade" og tilføj event listeners
+const upgradeButtons = document.querySelectorAll(".upgrade");
+
+upgradeButtons.forEach(button => {
+    button.addEventListener("click", () => {
+        // Vælg en tilfældig lyd og afspil den
+        const randomSound = clickSounds[Math.floor(Math.random() * clickSounds.length)];
+        randomSound.play();
+    });
+});
+
+
 
 
 // Variables
 let count = 200;
-let countPerSec = 2;
+let countPerSec = 3;
 let formeringCost = 50;
 let plusIncreasePerSec = 1;
 
-let countdown = 20; // Tid i sekunder
+let countdown = 30; // Tid i sekunder
 let gameOver = false;
 let celledelingCountdown = 7; // Tid til celledeling-bonus
 let newCelledelingCountdown = celledelingCountdown;
@@ -45,7 +64,8 @@ let baseUpgradeLoss = 1;
 let baseSygdomsLoss = 0.5;
 let sygdomsLoss = baseSygdomsLoss;
 let upgradeLoss = baseUpgradeLoss;
-let start = false
+let start = false;
+let completed = false;
 // Upgrades
 
 const tooltip = document.getElementById("tooltip");
@@ -54,9 +74,9 @@ const tooltip = document.getElementById("tooltip");
 let celledelingActive = false;
 let celledelingActive2 = false;
 let celledelingActive3 = false;
-let celledelingCost = 60;
-let celledelingCost2 = 150;
-let celledelingCost3 = 300;
+let celledelingCost = 100;
+let celledelingCost2 = 200;
+let celledelingCost3 = 5000;
 
 // Skjold
 let skjoldActive = false;
@@ -66,21 +86,21 @@ let skjoldCost = 75;
 let skjoldCost2 = 150;
 let skjoldCost3 = 300;
 let skjoldDefense1 = 40;
-let skjoldDefense2 = 250;
-let skjoldDefense3 = 500;
+let skjoldDefense2 = 150;
+let skjoldDefense3 = 400
 
 // Medicin
 let medicinActive1 = false;
 let medicinActive2 = false;
 let medicinActive3 = false;
-let medicinCost1 = 50;
-let medicinCost2 = 100;
-let medicinCost3 = 200;
+let medicinCost1 = 200;
+let medicinCost2 = 500;
+let medicinCost3 = 10000;
 
 // Forsinkelse
-let katastrofeCost = 75;
-let katastrofeCost2 = 150;
-let katastrofeCost3 = 200; 
+let katastrofeCost = 100;
+let katastrofeCost2 = 400;
+let katastrofeCost3 = 2000; 
 let katastrofeUpActive = false; 
 let katastrofeUpActive2 = false;
 let katastrofeUpActive3 = false;
@@ -94,12 +114,7 @@ let katastrofeDelay3 = 20
 
 
 function updateUI() {
-    if (!start){
-        formeringUp.classList.add("purchased");
-        countdownLabel.textContent = "Tid til Krig: 20 sekunder";
-        return
-    }
-    else if (gameOver){
+    if (gameOver){
         formeringUp.textContent = "Genstart";
         formeringUp.classList.add("purchased");
         return
@@ -108,6 +123,7 @@ function updateUI() {
         formeringUp.classList.remove("purchased");
     }
     checkGameOver()
+    complete()
     talLabel.textContent = `${(count)}`;
     increasePerSecLabel.textContent = `${(countPerSec)} bjørnedyr per sekund`;
     levelLabel.textContent = `Level: ${level}`;
@@ -149,15 +165,12 @@ function updateUI() {
     if (medicinActive1) {
         if (medicinActive2) {
             if (medicinActive3) {
-                adjustedSygdomsLoss = 0; // Ingen tab, hvis alle tre er opgraderet
-                upgradeLoss -= 3;
+                adjustedSygdomsLoss = 0.05; // Ingen tab, hvis alle tre er opgraderet
             } else {
                 adjustedSygdomsLoss = 0.15;
-                upgradeLoss -= 2;
             }
         } else {
             adjustedSygdomsLoss = 0.3;
-            upgradeLoss -= 1;
         }
     } else {
         adjustedSygdomsLoss = baseSygdomsLoss;
@@ -165,9 +178,19 @@ function updateUI() {
     if (upgradeLoss < 0){
         upgradeLoss = 0;
     }
-    sygdomsLossPreviewLabel.textContent = `Tab ved næste Sygdom: ${adjustedSygdomsLoss * 100}%, og ${Math.ceil(upgradeLoss)} formering upgrades`;
+    if (level >= 3) {
+        sygdomsLossPreviewLabel.textContent = `Tab ved næste Sygdom: ${adjustedSygdomsLoss * 100}%, og 1 random upgrade`;
+    }
+    else {
+        sygdomsLossPreviewLabel.textContent = `Tab ved næste Sygdom: ${adjustedSygdomsLoss * 100}%, men ingen random upgrades`;
+    }
 
-
+    if (!start){
+        formeringUp.classList.add("purchased");
+        formeringUp.textContent = `Start`;
+        return
+    }
+    
     // Celledeling-status
     if (celledelingActive) {
         celledelingUp.classList.remove("can-buy");
@@ -390,6 +413,7 @@ function restart() {
     level = 0;
     nextCatastrophe = "Krig";
     gameOverLabel.style.display = "none";
+    completedLabel.style.display = "none";
     celledelingCountdownLabel.style.display = "none";
     katastrofeLabel.style.display = "none";
 
@@ -619,11 +643,11 @@ katastrofeUp3.onclick = function () {
             tooltip.textContent = `Skjold 3: Reducerer krigstab med ${skjoldDefense3 - skjoldDefense2} ekstra / ${skjoldDefense3} i alt. Koster ${skjoldCost3} bjørnedyr.`;
         }
         else if (event.target === medicinUp1) {
-            tooltip.textContent = `Medicin: Reducerer sygdom til 30%, og reducerer formerings tabet med 1. Koster ${medicinCost1} bjørnedyr.`;
+            tooltip.textContent = `Medicin: Reducerer sygdom til 30%. Koster ${medicinCost1} bjørnedyr.`;
         } else if (event.target === medicinUp2) {
-            tooltip.textContent = `Medicin 2: Reducerer sygdom til 15%, og reducerer formerings tabet med 2. Koster ${medicinCost2} bjørnedyr.`;
+            tooltip.textContent = `Medicin 2: Reducerer sygdom til 15%. Koster ${medicinCost2} bjørnedyr.`;
         } else if (event.target === medicinUp3) {
-            tooltip.textContent = `Medicin 3: Reducerer sygdom til 5%, og reducerer formerings tabet med 3. Koster ${medicinCost3} bjørnedyr.`;
+            tooltip.textContent = `Medicin 3: Reducerer sygdom til 5%. Koster ${medicinCost3} bjørnedyr.`;
         }
         else if (event.target === katastrofeUp) {
             tooltip.textContent = `Forsinkelse: Forsink den næste katastrofe med ${katastrofeDelay1} sekunder. Koster ${katastrofeCost} bjørnedyr.`;
@@ -679,92 +703,148 @@ let gameTimer = setInterval(function () {
 }, 1000);
 
 
-function handlePointLoss() {
+
+// Hjælpefunktion til at give et pænt navn for opgraderinger
+function upgradeName(name) {
+    switch(name) {
+        case "celledelingActive": return "Celledeling 1";
+        case "celledelingActive2": return "Celledeling 2";
+        case "celledelingActive3": return "Celledeling 3";
+        case "skjoldActive": return "Skjold 1";
+        case "skjoldActive2": return "Skjold 2";
+        case "skjoldActive3": return "Skjold 3";
+        case "medicinActive1": return "Medicin 1";
+        case "medicinActive2": return "Medicin 2";
+        case "medicinActive3": return "Medicin 3";
+        default: return name;
+    }
+}
+
+function handlePointLoss() { 
     if (gameOver) return;
     if (!start) return;
+    
     if (nextCatastrophe === "Krig") {
-        let warLoss = baseWarLoss; // Brug den aktuelle baseWarLoss
+        let warLoss = baseWarLoss;
         if (skjoldActive) {
-            if (skjoldActive2){
-                if (skjoldActive3){
-                    warLoss -= skjoldDefense3; // Reducer tabene, hvis skjold er aktivt
-                }
-                else{
+            if (skjoldActive2) {
+                if (skjoldActive3) {
+                    warLoss -= skjoldDefense3;
+                } else {
                     warLoss -= skjoldDefense2;
                 }
-            }
-            else{
+            } else {
                 warLoss -= skjoldDefense1;
             }
         }
-        if (warLoss < 0){
-            warLoss = 0;
-        }
-
+        if (warLoss < 0) warLoss = 0;
         count -= Math.round(warLoss);
-        if (warLoss == 0) {
-            katastrofeLabel.textContent = `Krig: Du har ikke mistet nogen bjørnedyr.`;
-        }
-        else {
+        if (warLoss === 0) {
+            katastrofeLabel.textContent = "Krig: Du har ikke mistet nogen bjørnedyr.";
+        } else {
             katastrofeLabel.textContent = `Krig: Du har mistet ${Math.round(warLoss)} bjørnedyr.`;
         }
-
         showChangeLabel(Math.round(-warLoss));
         baseWarLoss *= 1.5;
-
+        
     } else if (nextCatastrophe === "Sygdom") {
-        upgradeLoss = baseUpgradeLoss;
+        let sygdomsLoss = 0.5;
         if (medicinActive1) {
             if (medicinActive2) {
                 if (medicinActive3) {
                     sygdomsLoss = 0.05;
-                    upgradeLoss -= 3;
-                }
-                else {
+                } else {
                     sygdomsLoss = 0.15;
-                    count = Math.round(count * sygdomsLoss);
-                    upgradeLoss -= 2;
                 }
-            }
-            else {
+            } else {
                 sygdomsLoss = 0.3;
-                count = Math.round(count * sygdomsLoss);
-                upgradeLoss -= 1;
             }
         }
-        else {
-            count = Math.round(count * sygdomsLoss); // Sygdom: Tab 50 %
+        count = Math.round(count * (1 - sygdomsLoss));
+
+
+        // Saml alle aktive opgraderinger (kun én pr. type – vi antager, at højeste niveau er aktivt, hvis det er sandt)
+        let upgrades = [];
+        if (celledelingActive3) upgrades.push("celledelingActive3");
+        else if (celledelingActive2) upgrades.push("celledelingActive2");
+        else if (celledelingActive) upgrades.push("celledelingActive");
+        
+        if (skjoldActive3) upgrades.push("skjoldActive3");
+        else if (skjoldActive2) upgrades.push("skjoldActive2");
+        else if (skjoldActive) upgrades.push("skjoldActive");
+        
+        if (medicinActive3) upgrades.push("medicinActive3");
+        else if (medicinActive2) upgrades.push("medicinActive2");
+        else if (medicinActive1) upgrades.push("medicinActive1");
+         
+        if (level >= 3 && upgrades.length > 0) {
+            let randomUpgrade = upgrades[Math.floor(Math.random() * upgrades.length)];
+            // Brug switch-case for at sætte den korrekte opgradering til false
+            switch(randomUpgrade) {
+                case "celledelingActive3":
+                    celledelingActive3 = false;
+                    break;
+                case "celledelingActive2":
+                    celledelingActive2 = false;
+                    break;
+                case "celledelingActive":
+                    celledelingActive = false;
+                    break;
+                case "skjoldActive3":
+                    skjoldActive3 = false;
+                    break;
+                case "skjoldActive2":
+                    skjoldActive2 = false;
+                    break;
+                case "skjoldActive":
+                    skjoldActive = false;
+                    break;
+                case "medicinActive3":
+                    medicinActive3 = false;
+                    break;
+                case "medicinActive2":
+                    medicinActive2 = false;
+                    break;
+                case "medicinActive1":
+                    medicinActive1 = false;
+                    break;
+                default:
+                    break;
+            }
+            let upgradeDisplay = upgradeName(randomUpgrade);
+            katastrofeLabel.textContent = `Sygdom: Du har mistet ${Math.round(sygdomsLoss * 100)}% af dine bjørnedyr og opgraderingen ${upgradeDisplay}.`;
+        } else {
+            katastrofeLabel.textContent = `Sygdom: Du har mistet ${Math.round(sygdomsLoss * 100)}% af dine bjørnedyr, men ingen opgraderinger.`;
         }
         
-        if (upgradeLoss <= 0) {
-            upgradeLoss = 0;
-
-        }
-        if (sygdomsLoss == 0 && upgradeLoss == 0) {
-            katastrofeLabel.textContent = `Sygdom: Du har ikke mistet nogen af dine bjørnedyr eller nogen formering upgrades.`;
-        }
-        else {
-            katastrofeLabel.textContent = `Sygdom: Du har mistet ${sygdomsLoss*100}% / ${Math.round(sygdomsLoss*count)} af dine bjørnedyr, og ${Math.ceil(upgradeLoss)} formering upgrades.`;
-        }
-        showChangeLabel(Math.round(-sygdomsLoss*count));
-        countPerSec -= Math.ceil(upgradeLoss);
-        baseUpgradeLoss *= 1.5;
+        showChangeLabel(Math.round(-sygdomsLoss * count));
     }
-
-    level++; // Øg level efter hver katastrofe
+    
+    level++;
     updateUI();
-
+    
     katastrofeLabel.style.display = "block";
     setTimeout(() => {
         katastrofeLabel.style.display = "none";
     }, 5000);
     nextCatastrophe = nextCatastrophe === "Krig" ? "Sygdom" : "Krig";
-    checkGameOver();
-    countdown = 20 //+ katastrofeDelay; // Tilføj forsinkelse
+    countdown = 30;
 }
 
-
-
+function complete() {
+    if (!start) return;
+    if (gameOver) return;
+    if (completed) return;
+    if (level >= 10) {
+        saveLeaderboardData(playerUsername, count);
+        completedLabel.textContent = "Du har vundet spillet!";
+        completedLabel.style.display = "block";
+        document.body.style.backgroundColor = "hsl(110, 100%, 50%)";
+        completed = true;
+        gameOver = true;
+        updateUI();
+    }
+}
 
 // Check if the game is over
 function checkGameOver() {
@@ -774,7 +854,8 @@ function checkGameOver() {
         gameOverLabel.textContent = "Du har tabt spillet!";
         gameOverLabel.style.display = "block";
         document.body.style.backgroundColor = "hsl(0, 0.00%, 36.90%)";
-        saveLeaderboardData(playerUsername, level);
+        saveLeaderboardData(playerUsername, count);
+
         updateUI();
     }
 }
@@ -791,10 +872,9 @@ function checkGameOver() {
 
 
 
-
 // Firebase-konfiguration og initialisering
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getFirestore, collection, addDoc, getDocs, orderBy, query, where, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+import { getFirestore, collection, addDoc, getDocs, orderBy, query, updateDoc, doc, where } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
 const firebaseConfig = {
@@ -821,7 +901,7 @@ const playWithoutLoginBtn = document.getElementById("playWithoutLogin");
 const usernameInput = document.getElementById("usernameInput");
 
 let playerUsername = "";
-let playerLevel = 1; // Starter med level 1 som default
+// Vi bruger "count" som score (default starter vi med 200)
 
 // Lyt efter login-status (efter auth er initialiseret!)
 auth.onAuthStateChanged((user) => {
@@ -830,7 +910,6 @@ auth.onAuthStateChanged((user) => {
         document.getElementById("username").innerText = `Logget ind som: ${user.displayName}`;
         logInd.style.display = "none";
         logUd.style.display = "inline-block";
-
         playerUsername = user.displayName;
     } else {
         console.log("❌ Ingen bruger logget ind");
@@ -846,17 +925,14 @@ async function loginWithGoogle() {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
         console.log("✅ Logget ind som:", user.displayName);
-
-        if (!playerUsername) { // Kun start spillet hvis det ikke allerede er startet
+        if (!playerUsername) {
             playerUsername = user.displayName;
             document.getElementById("username").innerText = `Logget ind som: ${playerUsername}`;
-            startGame();
         }
     } catch (error) {
         console.error("🚨 Fejl ved login:", error);
     }
 }
-
 window.loginWithGoogle = loginWithGoogle;
 
 // Funktion til at logge ud
@@ -875,11 +951,10 @@ window.logout = logout;
 const bannedWords = ["lukas granum", "lucas granum med k", "ligma", "balls", "deez", "nuts", "admin", "grim", "ugly", "nigger", "nigga", "niga", "neger", "negger", "negga", "sligma", "sut", "slikma", "menneske", "mennesker", "bozo", "bøsse", "gay", "homo", "dum", "transkønnet", "trans", "transformer", "pik", "cock", "penis", "dick", "tissemand", "kønsdele"];
 
 // Funktion til at validere brugernavnet
-
 function isValidUsername(username) {
     username = username.toLowerCase().trim(); // Fjern mellemrum og gør det småt
 
-    // Tjek længde (min 3, max 15 tegn)
+    // Tjek længde (min 2, max 30 tegn)
     if (username.length < 2 || username.length > 30) {
         return "Brugernavn skal være mellem 2 og 30 tegn.";
     }
@@ -894,57 +969,40 @@ function isValidUsername(username) {
     return true; // Godkendt brugernavn
 }
 
-// Event listener for knappen
+// Event listener for playWithoutLogin-knappen
 document.getElementById("playWithoutLogin").addEventListener("click", function () {
-    const usernameInput = document.getElementById("usernameInput").value;
-    const validationMessage = isValidUsername(usernameInput);
-
-    if (validationMessage === true) {
-        playerUsername = usernameInput; // Gem gyldigt brugernavn
-        startGame(); // Start spillet
-    } else {
-        alert(validationMessage); // Vis fejlmeddelelse
-    }
-});
-
-
-// Tilføj event listener til playWithoutLogin-knappen
-playWithoutLoginBtn.addEventListener("click", () => {
     const inputName = usernameInput.value.trim();
     const validationResult = isValidUsername(inputName);
-    if (validationResult !== true) {
-        return;
-}
-    if (!inputName) {
-        return;
+    if (validationResult === true && inputName) {
+        playerUsername = inputName;
+        document.getElementById("username").innerText = `Spiller: ${playerUsername}`;
+        // Her kan du starte spillet
+    } else {
+        alert(validationResult);
     }
-    
-    playerUsername = inputName;
-    document.getElementById("username").innerText = `Spiller: ${playerUsername}`;
-    startGame();
 });
 
-// Hent og vis leaderboard
 // Hent og vis leaderboard
 async function fetchLeaderboard() {
     try {
         const leaderboardRef = collection(db, "leaderboard");
-        const q = query(leaderboardRef, orderBy("level", "desc"));
+        // Sorter efter "count" i stedet for "level"
+        const q = query(leaderboardRef, orderBy("count", "desc"));
         const querySnapshot = await getDocs(q);
         const leaderboardData = new Map();
 
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             if (data.username && data.username.trim() !== "") {
-                // Kun tilføj eller opdater data, hvis brugerens level er højere
-                if (!leaderboardData.has(data.username) || data.level > leaderboardData.get(data.username).level) {
+                // Kun tilføj eller opdater data, hvis brugerens count er højere
+                if (!leaderboardData.has(data.username) || data.count > leaderboardData.get(data.username).count) {
                     leaderboardData.set(data.username, data);
                 }
             }
         });
 
-        // Konverter Map til en array og sorter efter level
-        const uniqueLeaderboard = Array.from(leaderboardData.values()).sort((a, b) => b.level - a.level);
+        // Konverter Map til en array og sorter efter count
+        const uniqueLeaderboard = Array.from(leaderboardData.values()).sort((a, b) => b.count - a.count);
 
         // Vis kun de 10 bedste spillere
         displayLeaderboard(uniqueLeaderboard.slice(0, 10));
@@ -952,8 +1010,6 @@ async function fetchLeaderboard() {
         console.error("🚨 Fejl ved hentning af leaderboard:", error);
     }
 }
-
-
 
 // Funktion til at vise leaderboard
 function displayLeaderboard(leaderboardData) {
@@ -972,7 +1028,7 @@ function displayLeaderboard(leaderboardData) {
         contentContainer.innerHTML = "<p>Ingen spillere på leaderboardet endnu.</p>";
     } else {
         leaderboardData.forEach(entry => {
-            contentContainer.innerHTML += `<p>${entry.username}: Level ${entry.level}</p>`;
+            contentContainer.innerHTML += `<p>${entry.username}: Score ${entry.count}</p>`;
         });
     }
 
@@ -983,20 +1039,17 @@ function displayLeaderboard(leaderboardData) {
 // Funktion til at skjule/vise leaderboardet
 function toggleLeaderboard() {
     const contentContainer = document.getElementById("leaderboardContent");
-    const toogleLeaderboardBtn = document.getElementById("toggleLeaderboard")
+    const toggleLeaderboardBtn = document.getElementById("toggleLeaderboard");
     if (contentContainer.style.display === "none") {
         contentContainer.style.display = "block"; // Vis leaderboard
-        toogleLeaderboardBtn.textContent = "v"
+        toggleLeaderboardBtn.textContent = "v";
     } else {
         contentContainer.style.display = "none"; // Skjul leaderboard
-        toogleLeaderboardBtn.textContent = ">"
+        toggleLeaderboardBtn.textContent = ">";
     }
 }
 
-
-
-// Funktion til at gemme brugerens data på leaderboardet
-async function saveLeaderboardData(username, level) {
+async function saveLeaderboardData(username, count) {
     const validationResult = isValidUsername(username);
     if (validationResult !== true) {
         console.error("Ugyldigt brugernavn, data bliver ikke gemt:", validationResult);
@@ -1004,36 +1057,27 @@ async function saveLeaderboardData(username, level) {
     }
     try {
         const leaderboardRef = collection(db, "leaderboard");
-        const q = query(leaderboardRef);
+        // Hent kun dokumenter med det givne brugernavn
+        const q = query(leaderboardRef, where("username", "==", username));
         const querySnapshot = await getDocs(q);
 
-        let existingDoc = null;
-        
-        // Tjek om spilleren allerede er i databasen
-        querySnapshot.forEach((docSnap) => {
+        if (!querySnapshot.empty) {
+            // Hvis spilleren allerede er registreret, opdaterer vi den første post
+            const docSnap = querySnapshot.docs[0];
             const data = docSnap.data();
-            if (data.username === username) { // Sørg for, at brugernavnet matcher
-                if (!existingDoc || data.level < level) {
-                    existingDoc = docSnap;
-                }
-            }
-        });
-
-        if (existingDoc) {
-            // Opdater eksisterende dokument, hvis spilleren har en højere score
-            if (existingDoc.data().level < level) {
-                await updateDoc(doc(db, "leaderboard", existingDoc.id), {
-                    level: level
+            if (data.count < count) {
+                await updateDoc(doc(db, "leaderboard", docSnap.id), {
+                    count: count
                 });
                 console.log("✅ Opdateret score for:", username);
             }
         } else {
-            // Ellers tilføj en ny post
-            await addDoc(collection(db, "leaderboard"), {
+            // Hvis ingen post findes, tilføjes en ny post
+            await addDoc(leaderboardRef, {
                 username: username,
-                level: level
+                count: count
             });
-            console.log("✅ Data gemt på leaderboard:", username, level);
+            console.log("✅ Data gemt på leaderboard:", username, count);
         }
 
         fetchLeaderboard();
@@ -1042,28 +1086,6 @@ async function saveLeaderboardData(username, level) {
     }
 }
 
-
-
-// Start spillet
-function startGame() {
-
-    if (!playerUsername) {
-        console.log("❌ Du skal have et brugernavn for at spille!");
-        return;
-    }
-    // Her kan du starte dit spil
-}
-
-// Funktion, som kaldes når spilleren dør, så gemmes data
-if (typeof window.gameOver === "undefined") {
-  async function gameOver() {
-      console.log(`Spiller ${playerUsername} er død på level ${playerLevel}`);
-      // Gem data først når man dør
-      await saveLeaderboardData(playerUsername, playerLevel);
-      // Eventuelt vis en "Game Over"-skærm eller genstart spillet
-  }
-  window.gameOver = gameOver;
-}
 
 // Sørg for at funktioner er tilgængelige globalt
 window.onload = () => {
