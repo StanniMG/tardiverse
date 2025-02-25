@@ -259,3 +259,21 @@ body {
     color: hsl(0, 0%, 30%);
     margin-top: 10px;
 }
+
+#howToPlayLabel {
+    font-size: 2em;
+    background-color: antiquewhite;
+    border: solid 5px black;
+    border-radius: 5px;
+    float: none;
+    margin: 100px;
+    padding: 20px;
+    display: none;
+}
+
+#howToPlay {
+    background-color: rgb(23, 148, 186);
+    border-radius: 2.5px;
+    border: none;
+    
+}
