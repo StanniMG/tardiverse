@@ -414,6 +414,7 @@ function restart() {
     baseSygdomsLoss = 0.5;
     level = 0;
     nextCatastrophe = "Krig";
+    completed = false;
     gameOverLabel.style.display = "none";
     completedLabel.style.display = "none";
     celledelingCountdownLabel.style.display = "none";
