@@ -10,6 +10,7 @@ const levelLabel = document.getElementById("levelLabel");
 const warLossPreviewLabel = document.getElementById("warLossPreviewLabel");
 const sygdomsLossPreviewLabel = document.getElementById("sygdomsLossPreviewLabel");
 const completedLabel = document.getElementById("completedLabel");
+const howToPlay = document.getElementById("howToPlay");
 
 
 // Upgrade buttons
@@ -53,7 +54,8 @@ let countPerSec = 3;
 let formeringCost = 50;
 let plusIncreasePerSec = 1;
 
-let countdown = 30; // Tid i sekunder
+let baseCountdown = 30
+let countdown = baseCountdown; // Tid i sekunder
 let gameOver = false;
 let celledelingCountdown = 7; // Tid til celledeling-bonus
 let newCelledelingCountdown = celledelingCountdown;
@@ -95,7 +97,7 @@ let medicinActive2 = false;
 let medicinActive3 = false;
 let medicinCost1 = 200;
 let medicinCost2 = 500;
-let medicinCost3 = 10000;
+let medicinCost3 = 8000;
 
 // Forsinkelse
 let katastrofeCost = 100;
@@ -190,7 +192,7 @@ function updateUI() {
         formeringUp.textContent = `Start`;
         return
     }
-    
+
     // Celledeling-status
     if (celledelingActive) {
         celledelingUp.classList.remove("can-buy");
@@ -405,7 +407,7 @@ function restart() {
     baseUpgradeLoss = 1;
     upgradeLoss = baseUpgradeLoss;
     countPerSec = 2;
-    countdown = 20;
+    countdown = baseCountdown;
     gameOver = false;
     start = true;
     baseWarLoss = 100;
@@ -621,6 +623,9 @@ katastrofeUp3.onclick = function () {
     }
 };
 
+
+
+
 // Tooltip-håndtering
 [formeringUp, celledelingUp, celledelingUp2, celledelingUp3, skjoldUp, skjoldUp2, skjoldUp3, medicinUp1, medicinUp2, medicinUp3, katastrofeUp, katastrofeUp2, katastrofeUp3].forEach(button => {
     button.addEventListener("mouseover", (event) => {
@@ -828,7 +833,7 @@ function handlePointLoss() {
         katastrofeLabel.style.display = "none";
     }, 5000);
     nextCatastrophe = nextCatastrophe === "Krig" ? "Sygdom" : "Krig";
-    countdown = 30;
+    countdown = baseCountdown;
 }
 
 function complete() {
@@ -861,6 +866,22 @@ function checkGameOver() {
 }
 
 
+
+
+const howToPlayLabel = document.getElementById("howToPlayLabel")
+
+let howToPlayText = false;
+howToPlay.onclick = function () {
+    if (howToPlayText) {
+        howToPlayLabel.style.display = "none"
+        howToPlay.textContent = "📜 Sådan spiller du"
+        howToPlayText = false;
+    } else {
+        howToPlayLabel.style.display = "block"
+        howToPlay.textContent = "Luk"
+        howToPlayText = true;
+    }
+}
 
 
 
@@ -925,14 +946,20 @@ async function loginWithGoogle() {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
         console.log("✅ Logget ind som:", user.displayName);
+        
         if (!playerUsername) {
             playerUsername = user.displayName;
             document.getElementById("username").innerText = `Logget ind som: ${playerUsername}`;
         }
+
+        console.log("📌 Kalder saveLeaderboardData for:", playerUsername);
+        
     } catch (error) {
         console.error("🚨 Fejl ved login:", error);
     }
 }
+
+
 window.loginWithGoogle = loginWithGoogle;
 
 // Funktion til at logge ud
@@ -970,7 +997,7 @@ function isValidUsername(username) {
 }
 
 // Event listener for playWithoutLogin-knappen
-document.getElementById("playWithoutLogin").addEventListener("click", function () {
+playWithoutLoginBtn.addEventListener("click", function () {
     const inputName = usernameInput.value.trim();
     const validationResult = isValidUsername(inputName);
     if (validationResult === true && inputName) {
@@ -1056,35 +1083,42 @@ async function saveLeaderboardData(username, count) {
         return;
     }
     try {
+        console.log(`📌 Forsøger at gemme data: username=${username}, count=${count}`);
+
         const leaderboardRef = collection(db, "leaderboard");
-        // Hent kun dokumenter med det givne brugernavn
         const q = query(leaderboardRef, where("username", "==", username));
         const querySnapshot = await getDocs(q);
 
+        console.log(`📌 Antal eksisterende poster fundet: ${querySnapshot.size}`);
+
         if (!querySnapshot.empty) {
-            // Hvis spilleren allerede er registreret, opdaterer vi den første post
             const docSnap = querySnapshot.docs[0];
             const data = docSnap.data();
-            if (data.count < count) {
-                await updateDoc(doc(db, "leaderboard", docSnap.id), {
-                    count: count
-                });
-                console.log("✅ Opdateret score for:", username);
+            
+            // Fallback hvis "count" ikke findes i den gamle data
+            const existingCount = data.count ?? 0; 
+        
+            console.log(`📌 Eksisterende data: ${JSON.stringify(data)}`);
+            console.log(`📌 Eksisterende count: ${existingCount}`);
+        
+            if (existingCount < count) {
+                console.log(`📌 Opdaterer ${username} fra ${existingCount} til ${count}`);
+                await updateDoc(doc(db, "leaderboard", docSnap.id), { count: count });
+            } else {
+                console.log(`⚠️ Eksisterende score er højere eller den samme. Ingen opdatering.`);
             }
         } else {
-            // Hvis ingen post findes, tilføjes en ny post
-            await addDoc(leaderboardRef, {
-                username: username,
-                count: count
-            });
-            console.log("✅ Data gemt på leaderboard:", username, count);
+            console.log("📌 Ny spiller - gemmer i leaderboard");
+            await addDoc(leaderboardRef, { username: username, count: count });
         }
 
+        console.log("✅ Data gemt/opdateret!");
         fetchLeaderboard();
     } catch (error) {
         console.error("🚨 Fejl ved gemning af data:", error);
     }
 }
+
 
 
 // Sørg for at funktioner er tilgængelige globalt
