@@ -406,7 +406,7 @@ function restart() {
 
     baseUpgradeLoss = 1;
     upgradeLoss = baseUpgradeLoss;
-    countPerSec = 2;
+    countPerSec = 3;
     countdown = baseCountdown;
     gameOver = false;
     start = true;
@@ -1126,3 +1126,4 @@ async function saveLeaderboardData(username, count) {
 window.onload = () => {
     fetchLeaderboard();
 };
+
