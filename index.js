@@ -847,7 +847,7 @@ function complete() {
     if (!start) return;
     if (gameOver) return;
     if (completed) return;
-    if (level >= 1) {
+    if (level >= 10) {
         bBucks += 1;
         saveLeaderboardData(playerUsername, count, bBucks);
         completedLabel.textContent = "Du har vundet spillet!";
@@ -1156,3 +1156,4 @@ async function saveLeaderboardData(username, count, bBucks) {
 window.onload = () => {
     fetchLeaderboard();
 };
+
