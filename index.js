@@ -28,6 +28,10 @@ const katastrofeUp2 = document.getElementById("katastrofeUp2");
 const katastrofeUp3 = document.getElementById("katastrofeUp3");
 const formeringUp = document.getElementById("formeringUp");
 
+
+// Perms
+const bBucksLabel = document.getElementById("bBucksLabel");
+
 // Opret lydobjekter
 const clickSounds = [
     new Audio("lyde/klik/klik_1.wav"),
@@ -110,7 +114,8 @@ let katastrofeDelay1 = 10
 let katastrofeDelay2 = 15
 let katastrofeDelay3 = 20
 
-
+// Perms
+let bBucks = 0;
 
 // Helper function to format numbers with a dot every three zeros
 
@@ -126,6 +131,7 @@ function updateUI() {
     }
     checkGameOver()
     complete()
+    bBucksLabel.textContent = `B-Bucks: ${bBucks}`;
     talLabel.textContent = `${(count)}`;
     increasePerSecLabel.textContent = `${(countPerSec)} bjørnedyr per sekund`;
     levelLabel.textContent = `Level: ${level}`;
@@ -406,7 +412,7 @@ function restart() {
 
     baseUpgradeLoss = 1;
     upgradeLoss = baseUpgradeLoss;
-    countPerSec = 3;
+    countPerSec = 2;
     countdown = baseCountdown;
     gameOver = false;
     start = true;
@@ -841,13 +847,14 @@ function complete() {
     if (!start) return;
     if (gameOver) return;
     if (completed) return;
-    if (level >= 10) {
-        saveLeaderboardData(playerUsername, count);
+    if (level >= 1) {
+        bBucks += 1;
+        saveLeaderboardData(playerUsername, count, bBucks);
         completedLabel.textContent = "Du har vundet spillet!";
         completedLabel.style.display = "block";
         document.body.style.backgroundColor = "hsl(110, 100%, 50%)";
         completed = true;
-        gameOver = true;
+        gameOver = true; 
         updateUI();
     }
 }
@@ -860,7 +867,7 @@ function checkGameOver() {
         gameOverLabel.textContent = "Du har tabt spillet!";
         gameOverLabel.style.display = "block";
         document.body.style.backgroundColor = "hsl(0, 0.00%, 36.90%)";
-        saveLeaderboardData(playerUsername, count);
+        saveLeaderboardData(playerUsername, count, bBucks);
 
         updateUI();
     }
@@ -926,18 +933,25 @@ let playerUsername = "";
 // Vi bruger "count" som score (default starter vi med 200)
 
 // Lyt efter login-status (efter auth er initialiseret!)
-auth.onAuthStateChanged((user) => {
+auth.onAuthStateChanged(async (user) => {
     if (user) {
         console.log("✅ Bruger logget ind:", user.displayName);
         document.getElementById("username").innerText = `Logget ind som: ${user.displayName}`;
         logInd.style.display = "none";
         logUd.style.display = "inline-block";
         playerUsername = user.displayName;
+
+        // Hent bBucks for brugeren og sæt startværdien
+        bBucks = await loadBBucksForUser(playerUsername);
+        bBucksLabel.textContent = `B-Bucks: ${bBucks}`; // <-- Opdater label med det samme!
+        console.log(`🔄 Indlæst bBucks for ${playerUsername}: ${bBucks}`);
     } else {
         console.log("❌ Ingen bruger logget ind");
         document.getElementById("username").innerText = "Ikke logget ind";
         logUd.style.display = "none";
         logInd.style.display = "inline-block";
+        bBucks = 0; // Nulstil bBucks hvis ingen bruger er logget ind
+        bBucksLabel.textContent = `B-Bucks: ${bBucks}`; // <-- Opdater label med det samme!
     }
 });
 
@@ -997,13 +1011,33 @@ function isValidUsername(username) {
     return true; // Godkendt brugernavn
 }
 
+// Funktion til at hente bBucks for en bruger fra leaderboard
+async function loadBBucksForUser(username) {
+    try {
+        const leaderboardRef = collection(db, "leaderboard");
+        const q = query(leaderboardRef, where("username", "==", username));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+            const data = querySnapshot.docs[0].data();
+            return data.bBucks ?? 0;
+        }
+    } catch (error) {
+        console.error("🚨 Fejl ved hentning af bBucks:", error);
+    }
+    return 0;
+}
+
 // Event listener for playWithoutLogin-knappen
-playWithoutLoginBtn.addEventListener("click", function () {
+playWithoutLoginBtn.addEventListener("click", async function () {
     const inputName = usernameInput.value.trim();
     const validationResult = isValidUsername(inputName);
     if (validationResult === true && inputName) {
         playerUsername = inputName;
         document.getElementById("username").innerText = `Spiller: ${playerUsername}`;
+        // Hent bBucks for brugeren og sæt startværdien
+        bBucks = await loadBBucksForUser(playerUsername);
+        bBucksLabel.textContent = `B-Bucks: ${bBucks}`; // <-- Opdater label med det samme!
+        console.log(`🔄 Indlæst bBucks for ${playerUsername}: ${bBucks}`);
         // Her kan du starte spillet
     } else {
         alert(validationResult);
@@ -1051,18 +1085,18 @@ function displayLeaderboard(leaderboardData) {
     `;
 
     const contentContainer = document.getElementById("leaderboardContent");
-
     if (leaderboardData.length === 0) {
         contentContainer.innerHTML = "<p>Ingen spillere på leaderboardet endnu.</p>";
     } else {
         leaderboardData.forEach(entry => {
+            // ✅ Viser kun username og score (ikke bBucks)
             contentContainer.innerHTML += `<p>${entry.username}: Score ${entry.count}</p>`;
         });
     }
 
-    // Tilføj event listener til knappen
     document.getElementById("toggleLeaderboard").addEventListener("click", toggleLeaderboard);
 }
+
 
 // Funktion til at skjule/vise leaderboardet
 function toggleLeaderboard() {
@@ -1077,40 +1111,35 @@ function toggleLeaderboard() {
     }
 }
 
-async function saveLeaderboardData(username, count) {
+async function saveLeaderboardData(username, count, bBucks) {
     const validationResult = isValidUsername(username);
     if (validationResult !== true) {
         console.error("Ugyldigt brugernavn, data bliver ikke gemt:", validationResult);
         return;
     }
     try {
-        console.log(`📌 Forsøger at gemme data: username=${username}, count=${count}`);
+        console.log(`📌 Forsøger at gemme data: username=${username}, count=${count}, bBucks=${bBucks}`);
 
         const leaderboardRef = collection(db, "leaderboard");
         const q = query(leaderboardRef, where("username", "==", username));
         const querySnapshot = await getDocs(q);
 
-        console.log(`📌 Antal eksisterende poster fundet: ${querySnapshot.size}`);
-
         if (!querySnapshot.empty) {
             const docSnap = querySnapshot.docs[0];
             const data = docSnap.data();
-            
-            // Fallback hvis "count" ikke findes i den gamle data
-            const existingCount = data.count ?? 0; 
-        
-            console.log(`📌 Eksisterende data: ${JSON.stringify(data)}`);
-            console.log(`📌 Eksisterende count: ${existingCount}`);
-        
+            const existingCount = data.count ?? 0;
+
             if (existingCount < count) {
-                console.log(`📌 Opdaterer ${username} fra ${existingCount} til ${count}`);
+                // ✅ Opdater kun count i leaderboard, men behold bBucks separat
                 await updateDoc(doc(db, "leaderboard", docSnap.id), { count: count });
-            } else {
-                console.log(`⚠️ Eksisterende score er højere eller den samme. Ingen opdatering.`);
             }
+
+            // ✅ Opdater bBucks UDEN at det påvirker leaderboard-sorteringen
+            await updateDoc(doc(db, "leaderboard", docSnap.id), { bBucks: bBucks });
+
         } else {
-            console.log("📌 Ny spiller - gemmer i leaderboard");
-            await addDoc(leaderboardRef, { username: username, count: count });
+            // ✅ Ny spiller - gemmer med count og bBucks (men bBucks vises ikke i leaderboard)
+            await addDoc(leaderboardRef, { username: username, count: count, bBucks: bBucks });
         }
 
         console.log("✅ Data gemt/opdateret!");
@@ -1122,8 +1151,8 @@ async function saveLeaderboardData(username, count) {
 
 
 
+
 // Sørg for at funktioner er tilgængelige globalt
 window.onload = () => {
     fetchLeaderboard();
 };
-
