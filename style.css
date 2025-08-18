@@ -206,6 +206,8 @@ body {
 
 /* Container for usernameInput og playWithoutLogin knap */
 #username-container {
+    visibility: hidden;
+    position: absolute; /* Gør containeren absolut placeret */
     display: flex;
     align-items: center;  /* Vertikal justering */
     justify-content: flex-start;  /* Lader dem være ved siden af hinanden */
@@ -276,4 +278,17 @@ body {
     border-radius: 2.5px;
     border: none;
     
+}
+
+
+/* Main Menu */
+
+#startGameBtn {
+    background-color: hsl(120, 100%, 40%);
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1.5em;
+    cursor: pointer;
 }
