@@ -3,72 +3,119 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bjørnedyrspil</title>
+    <title>Tardiverse</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
 
 </head>
 
 <body>
+
+    <!-- Main Menu -->
+    <div id="mainMenu">
+        <h1>Bjørnedyrspil</h1>
+        <button id="startGameBtn">Start spil</button>
+        <div id="login-container">
+            <div id="auth-container">
+                <!-- Radio knapper -->
+                <div class="radio-toggle">
+                    <label>
+                        <input type="radio" name="authMode" value="login" checked>
+                        <span class="custom-radio"></span> Login
+                    </label>
+                    <label>
+                        <input type="radio" name="authMode" value="register">
+                        <span class="custom-radio"></span> Opret Konto
+                    </label>
+                </div>
+
+                <!-- Opret konto -->
+                <div id="registerSection" style="display: none;">
+                    <h3>Opret konto</h3>
+                    <input type="text" id="newUsername" placeholder="Brugernavn">
+                    <input type="password" id="newPassword" placeholder="Kodeord">
+                    <button id="createAccountBtn">Opret konto</button>
+                </div>
+
+                <!-- Login -->
+                <div id="loginSection">
+                    <h3>Log ind</h3>
+                    <input type="text" id="loginUsername" placeholder="Brugernavn">
+                    <input type="password" id="loginPassword" placeholder="Kodeord">
+                    <button id="loginBtn">Log ind</button>
+                </div>
+            </div>
+
+
+
+            <p id="loginMessage"></p>
+
+            <div id="username-container">
+                <button onclick="loginWithGoogle()" id="logInd">Log ind med Google</button>
+                <button onclick="logout()" id="logUd" style="display: none;">Log ud</button>
+                <input type="text" id="usernameInput" placeholder="Indtast dit brugernavn"><br>
+                <input type="password" id="usernamePasswordInput" placeholder="Adgangskode">
+                <button id="playWithoutLogin">Submit</button>
+            </div>
+
+
+            <p id="username">Ikke logget ind</p>
+            <button id="howToPlay">📜 Sådan spiller du:</button>
+            <p id="howToPlayLabel">📜 Sådan spiller du:<br>
+                Dit mål er at opbygge en stor koloni af bjørnedyr.<br>
+                Bjørnedyr produceres automatisk over tid.<br>
+                Brug bjørnedyr til at købe opgraderinger som Celledeling (hurtigere vækst) og Skjold (beskyttelse).<br>
+                Overlev katastrofer som krig og sygdom, der fjerner bjørnedyr.<br>
+                Spillet slutter, hvis du mister alle bjørnedyr - eller hvis du når level 10!</p>
+        </div>
+    </div>
+        <!-- Selve spillet -->
     <div id="leaderboard">Leaderboard</div>
-    <div id="login-container">
-        <button onclick="loginWithGoogle()" id="logInd">Log ind med Google</button>
-        <button onclick="logout()" id="logUd" style="display: none;">Log ud</button>
+    
+    <div id="gameContainer" style="display: none;">
 
-        <div id="username-container">
-            <input type="text" id="usernameInput" placeholder="Indtast dit brugernavn">
-            <button id="playWithoutLogin">Submit</button>
+        <label id="countdownLabel">Tid til Krig: 30 sekunder</label>
+        <div id="warLossPreviewLabel" class="preview">Tab ved næste krig: 100</div><br>
+        <div id="sygdomsLossPreviewLabel" class="preview">Tab ved næste sygdom: 50%, men ingen random upgrades</div><br>
+        <div id="celledelingCountdownLabel" class="preview" style="display: none;"></div>
+        <div id="gameOverLabel" style="display: none;">Du har tabt spillet!</div>
+        <div id="completedLabel" style="display: none;">Du har vundet spillet!</div>
+        <div id="katastrofeLabel"></div>
+
+        <div id="game-content">
+            
+            <div id="Label">
+                <div id="levelLabel">Level: 0</div>
+                <label id="increasePerSecLabel">3 bjørnedyr Per sekund</label><br>
+            </div>
+            <label id="talLabel">0</label>
+            <div id="bonusLabel">+0</div><br>
+            <div id="btnContainer">
+                <button id="celledelingUp" class="upgrade">Celledeling 1 (60)</button>
+                <button id="skjoldUp" class="upgrade">Skjold 1 (75)</button>
+                <button id="medicinUp1" class="upgrade">Medicin 1 (50)</button>
+                <button id="katastrofeUp" class="upgrade">Forsinkelse 1 (75)</button><br>
+
+                <button id="celledelingUp2" class="upgrade">Celledeling 2 (150)</button>
+                <button id="skjoldUp2" class="upgrade">Skjold 2 (150)</button>
+                <button id="medicinUp2" class="upgrade">Medicin 2 (100)</button>
+                <button id="katastrofeUp2" class="upgrade">Forsinkelse 2 (150)</button><br>
+
+                <button id="celledelingUp3" class="upgrade">Celledeling 3 (300)</button>
+                <button id="skjoldUp3" class="upgrade">Skjold 3 (300)</button>
+                <button id="medicinUp3" class="upgrade">Medicin 3 (200)</button>
+                <button id="katastrofeUp3" class="upgrade">Forsinkelse 3 (200)</button><br>
+
+                <div id="tooltip" class="tooltip"></div><br>
+                <button id="formeringUp" class="upgrade">Start</button><br>
         </div>
-        <p id="username">Ikke logget ind</p>
-        <button id="howToPlay">📜 Sådan spiller du:</button>
-        <p id="howToPlayLabel">📜 Sådan spiller du:<br>
-            Dit mål er at opbygge en stor koloni af bjørnedyr.<br>
-            Bjørnedyr produceres automatisk over tid.<br>
-            Brug bjørnedyr til at købe opgraderinger som Celledeling (hurtigere vækst) og Skjold (beskyttelse).<br>
-            Overlev katastrofer som krig og sygdom, der fjerner bjørnedyr.<br>
-            Spillet slutter, hvis du mister alle bjørnedyr - eller hvis du når level 10!</p>
-    </div>
-    <label id="countdownLabel">Tid til Krig: 30 sekunder</label>
-    <div id="warLossPreviewLabel" class="preview">Tab ved næste krig: 100</div><br>
-    <div id="sygdomsLossPreviewLabel" class="preview">Tab ved næste sygdom: 50%, men ingen random upgrades</div><br>
-    <div id="celledelingCountdownLabel" class="preview" style="display: none;"></div>
-    <div id="gameOverLabel" style="display: none;">Du har tabt spillet!</div>
-    <div id="completedLabel" style="display: none;">Du har vundet spillet!</div>
-    <div id="katastrofeLabel"></div>
-
-    <div id="game-content">
-        
-        <div id="Label">
-            <div id="levelLabel">Level: 0</div>
-            <label id="increasePerSecLabel">3 bjørnedyr Per sekund</label><br>
+        <div id="permsContainer">
+                <label id="bBucksLabel">bBucks</label>
         </div>
-        <label id="talLabel">0</label>
-        <div id="bonusLabel">+0</div><br>
-        <div id="btnContainer">
-            <button id="celledelingUp" class="upgrade">Celledeling 1 (60)</button>
-            <button id="skjoldUp" class="upgrade">Skjold 1 (75)</button>
-            <button id="medicinUp1" class="upgrade">Medicin 1 (50)</button>
-            <button id="katastrofeUp" class="upgrade">Forsinkelse 1 (75)</button><br>
-
-            <button id="celledelingUp2" class="upgrade">Celledeling 2 (150)</button>
-            <button id="skjoldUp2" class="upgrade">Skjold 2 (150)</button>
-            <button id="medicinUp2" class="upgrade">Medicin 2 (100)</button>
-            <button id="katastrofeUp2" class="upgrade">Forsinkelse 2 (150)</button><br>
-
-            <button id="celledelingUp3" class="upgrade">Celledeling 3 (300)</button>
-            <button id="skjoldUp3" class="upgrade">Skjold 3 (300)</button>
-            <button id="medicinUp3" class="upgrade">Medicin 3 (200)</button>
-            <button id="katastrofeUp3" class="upgrade">Forsinkelse 3 (200)</button><br>
-
-            <div id="tooltip" class="tooltip"></div><br>
-            <button id="formeringUp" class="upgrade">Start</button><br>
-    </div>
-    <div id="permsContainer">
-            <label id="bBucksLabel">bBucks</label>
-    </div>
-    </div>
+        </div>
     
 
-
+    </div>
     <!-- Læsning af spillets script -->
     <script type="module" src="index.js" defer></script>
 </body>
