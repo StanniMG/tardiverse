@@ -849,10 +849,7 @@ function complete() {
     if (completed) return;
     if (level >= 10) {
         bBucks += 1;
-        // Gem score i leaderboard
-        saveLeaderboardData(playerUsername, count);
-        // Gem bBucks i users collection
-        saveBBucksForUser(playerUsername, bBucks);
+        saveLeaderboardData(playerUsername, count, bBucks);
         completedLabel.textContent = "Du har vundet spillet!";
         completedLabel.style.display = "block";
         document.body.style.backgroundColor = "hsl(110, 100%, 50%)";
@@ -870,10 +867,8 @@ function checkGameOver() {
         gameOverLabel.textContent = "Du har tabt spillet!";
         gameOverLabel.style.display = "block";
         document.body.style.backgroundColor = "hsl(0, 0.00%, 36.90%)";
-        // Gem score i leaderboard
-        saveLeaderboardData(playerUsername, count);
-        // Gem bBucks i users collection
-        saveBBucksForUser(playerUsername, bBucks);
+        saveLeaderboardData(playerUsername, count, bBucks);
+
         updateUI();
     }
 }
@@ -1161,19 +1156,101 @@ async function saveBBucksForUser(username, bBucks) {
             await updateDoc(doc(db, "users", docSnap.id), { bBucks: bBucks });
         }
     } catch (error) {
-        console.error("🚨 Fejl ved gemning af bBucks i users:", error);
+        console.error("🚨 Fejl ved gemning af bBucks:", error);
     }
 }
 
-// Funktion til at gemme score i leaderboard (uden at opdatere bBucks her!)
-async function saveLeaderboardData(username, count) {
+// Event listener for playWithoutLogin-knappen
+playWithoutLoginBtn.addEventListener("click", async function () {
+    const inputName = usernameInput.value.trim();
+    const inputPassword = usernamePasswordInput.value.trim();
+    const validationResult = isValidUsername(inputName);
+    if (validationResult === true && inputName) {
+        playerUsername = inputName;
+        document.getElementById("username").innerText = `Spiller: ${playerUsername}`;
+        bBucks = await loadBBucksForUser(playerUsername);
+        bBucksLabel.textContent = `B-Bucks: ${bBucks}`;
+        console.log(`🔄 Indlæst bBucks for ${playerUsername}: ${bBucks}`);
+    } else {
+        alert(validationResult);
+    }
+});
+
+// Hent og vis leaderboard
+async function fetchLeaderboard() {
+    try {
+        const leaderboardRef = collection(db, "leaderboard");
+        // Sorter efter "count" i stedet for "level"
+        const q = query(leaderboardRef, orderBy("count", "desc"));
+        const querySnapshot = await getDocs(q);
+        const leaderboardData = new Map();
+
+        querySnapshot.forEach((doc) => {
+            const data = doc.data();
+            if (data.username && data.username.trim() !== "") {
+                // Kun tilføj eller opdater data, hvis brugerens count er højere
+                if (!leaderboardData.has(data.username) || data.count > leaderboardData.get(data.username).count) {
+                    leaderboardData.set(data.username, data);
+                }
+            }
+        });
+
+        // Konverter Map til en array og sorter efter count
+        const uniqueLeaderboard = Array.from(leaderboardData.values()).sort((a, b) => b.count - a.count);
+
+        // Vis kun de 10 bedste spillere
+        displayLeaderboard(uniqueLeaderboard.slice(0, 10));
+    } catch (error) {
+        console.error("🚨 Fejl ved hentning af leaderboard:", error);
+    }
+}
+
+// Funktion til at vise leaderboard
+function displayLeaderboard(leaderboardData) {
+    const leaderboardContainer = document.getElementById("leaderboard");
+    leaderboardContainer.innerHTML = `
+        <div id="leaderboardHeader">
+            <h3>Leaderboard</h3> 
+            <button id="toggleLeaderboard">v</button>
+        </div>
+        <div id="leaderboardContent"></div>
+    `;
+
+    const contentContainer = document.getElementById("leaderboardContent");
+    if (leaderboardData.length === 0) {
+        contentContainer.innerHTML = "<p>Ingen spillere på leaderboardet endnu.</p>";
+    } else {
+        leaderboardData.forEach(entry => {
+            // ✅ Viser kun username og score (ikke bBucks)
+            contentContainer.innerHTML += `<p>${entry.username}: Score ${entry.count}</p>`;
+        });
+    }
+
+    document.getElementById("toggleLeaderboard").addEventListener("click", toggleLeaderboard);
+}
+
+
+// Funktion til at skjule/vise leaderboardet
+function toggleLeaderboard() {
+    const contentContainer = document.getElementById("leaderboardContent");
+    const toggleLeaderboardBtn = document.getElementById("toggleLeaderboard");
+    if (contentContainer.style.display === "none") {
+        contentContainer.style.display = "block"; // Vis leaderboard
+        toggleLeaderboardBtn.textContent = "v";
+    } else {
+        contentContainer.style.display = "none"; // Skjul leaderboard
+        toggleLeaderboardBtn.textContent = ">";
+    }
+}
+
+async function saveLeaderboardData(username, count, bBucks) {
     const validationResult = isValidUsername(username);
     if (validationResult !== true) {
         console.error("Ugyldigt brugernavn, data bliver ikke gemt:", validationResult);
         return;
     }
     try {
-        console.log(`📌 Forsøger at gemme data: username=${username}, count=${count}`);
+        console.log(`📌 Forsøger at gemme data: username=${username}, count=${count}, bBucks=${bBucks}`);
 
         const leaderboardRef = collection(db, "leaderboard");
         const q = query(leaderboardRef, where("username", "==", username));
@@ -1185,12 +1262,16 @@ async function saveLeaderboardData(username, count) {
             const existingCount = data.count ?? 0;
 
             if (existingCount < count) {
-                // ✅ Opdater kun count i leaderboard
+                // ✅ Opdater kun count i leaderboard, men behold bBucks separat
                 await updateDoc(doc(db, "leaderboard", docSnap.id), { count: count });
             }
+
+            // ✅ Opdater bBucks UDEN at det påvirker leaderboard-sorteringen
+            await updateDoc(doc(db, "leaderboard", docSnap.id), { bBucks: bBucks });
+
         } else {
-            // ✅ Ny spiller - gemmer med count
-            await addDoc(leaderboardRef, { username: username, count: count });
+            // ✅ Ny spiller - gemmer med count og bBucks (men bBucks vises ikke i leaderboard)
+            await addDoc(leaderboardRef, { username: username, count: count, bBucks: bBucks });
         }
 
         console.log("✅ Data gemt/opdateret!");
