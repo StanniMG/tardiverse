@@ -116,6 +116,7 @@ let katastrofeDelay3 = 20
 
 // Perms
 let bBucks = 0;
+let VIP = false;
 
 // Helper function to format numbers with a dot every three zeros
 
@@ -389,7 +390,7 @@ function showChangeLabel(amount) {
     // Skjul labelen efter 1 sekund
     setTimeout(() => {
         bonusLabel.style.opacity = 0;
-    }, 1000);
+    }, 1000); // Den skal være på 1000 
 }
 
 let celledelingTimer = null; // Gem timer-ID'et globalt
@@ -847,9 +848,9 @@ function complete() {
     if (!start) return;
     if (gameOver) return;
     if (completed) return;
-    if (level >= 10) {
+    if (level >= 10) { // level skal være >= 10
         bBucks += 1;
-        saveLeaderboardData(playerUsername, count, bBucks);
+        saveLeaderboardData(playerUsername, count, bBucks, VIP);
         completedLabel.textContent = "Du har vundet spillet!";
         completedLabel.style.display = "block";
         document.body.style.backgroundColor = "hsl(110, 100%, 50%)";
@@ -867,7 +868,7 @@ function checkGameOver() {
         gameOverLabel.textContent = "Du har tabt spillet!";
         gameOverLabel.style.display = "block";
         document.body.style.backgroundColor = "hsl(0, 0.00%, 36.90%)";
-        saveLeaderboardData(playerUsername, count, bBucks);
+        saveLeaderboardData(playerUsername, count, bBucks, VIP);
 
         updateUI();
     }
@@ -1154,11 +1155,13 @@ async function saveBBucksForUser(username, bBucks) {
         if (!querySnapshot.empty) {
             const docSnap = querySnapshot.docs[0];
             await updateDoc(doc(db, "users", docSnap.id), { bBucks: bBucks });
+            console.log(`✅ bBucks gemt for ${username}: ${bBucks}`);
         }
     } catch (error) {
         console.error("🚨 Fejl ved gemning af bBucks:", error);
     }
 }
+
 
 // Event listener for playWithoutLogin-knappen
 playWithoutLoginBtn.addEventListener("click", async function () {
@@ -1243,14 +1246,14 @@ function toggleLeaderboard() {
     }
 }
 
-async function saveLeaderboardData(username, count, bBucks) {
+async function saveLeaderboardData(username, count, bBucks, VIP) {
     const validationResult = isValidUsername(username);
     if (validationResult !== true) {
         console.error("Ugyldigt brugernavn, data bliver ikke gemt:", validationResult);
         return;
     }
     try {
-        console.log(`📌 Forsøger at gemme data: username=${username}, count=${count}, bBucks=${bBucks}`);
+        console.log(`📌 Gemmer leaderboard: username=${username}, count=${count}`);
 
         const leaderboardRef = collection(db, "leaderboard");
         const q = query(leaderboardRef, where("username", "==", username));
@@ -1262,24 +1265,23 @@ async function saveLeaderboardData(username, count, bBucks) {
             const existingCount = data.count ?? 0;
 
             if (existingCount < count) {
-                // ✅ Opdater kun count i leaderboard, men behold bBucks separat
                 await updateDoc(doc(db, "leaderboard", docSnap.id), { count: count });
             }
-
-            // ✅ Opdater bBucks UDEN at det påvirker leaderboard-sorteringen
-            await updateDoc(doc(db, "leaderboard", docSnap.id), { bBucks: bBucks });
-
         } else {
-            // ✅ Ny spiller - gemmer med count og bBucks (men bBucks vises ikke i leaderboard)
-            await addDoc(leaderboardRef, { username: username, count: count, bBucks: bBucks });
+            await addDoc(leaderboardRef, { username: username, count: count, VIP: VIP });
         }
 
-        console.log("✅ Data gemt/opdateret!");
+        console.log("✅ Leaderboard opdateret!");
         fetchLeaderboard();
+
+        // ✅ Gem bBucks i users-collection
+        await saveBBucksForUser(username, bBucks);
+
     } catch (error) {
-        console.error("🚨 Fejl ved gemning af data:", error);
+        console.error("🚨 Fejl ved gemning af leaderboard:", error);
     }
 }
+
 
 
 
