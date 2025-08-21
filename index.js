@@ -116,7 +116,7 @@ let katastrofeDelay3 = 20
 
 // Perms
 let bBucks = 0;
-let VIP = false;
+let donation = 0;
 
 // Helper function to format numbers with a dot every three zeros
 
@@ -713,7 +713,7 @@ let gameTimer = setInterval(function () {
         }
         updateUI();
     }
-}, 1000);
+}, 1000); // Den skal være på 1000 for at tælle korrekt
 
 
 
@@ -850,7 +850,7 @@ function complete() {
     if (completed) return;
     if (level >= 10) { // level skal være >= 10
         bBucks += 1;
-        saveLeaderboardData(playerUsername, count, bBucks, VIP);
+        saveLeaderboardData(playerUsername, count, bBucks, donation);
         completedLabel.textContent = "Du har vundet spillet!";
         completedLabel.style.display = "block";
         document.body.style.backgroundColor = "hsl(110, 100%, 50%)";
@@ -868,7 +868,7 @@ function checkGameOver() {
         gameOverLabel.textContent = "Du har tabt spillet!";
         gameOverLabel.style.display = "block";
         document.body.style.backgroundColor = "hsl(0, 0.00%, 36.90%)";
-        saveLeaderboardData(playerUsername, count, bBucks, VIP);
+        saveLeaderboardData(playerUsername, count, bBucks, donation);
 
         updateUI();
     }
@@ -953,8 +953,9 @@ auth.onAuthStateChanged(async (user) => {
 
         // Hent bBucks for brugeren og sæt startværdien
         bBucks = await loadBBucksForUser(playerUsername);
+        donation = await loaddonationForUser(playerUsername);
+        applyVIPBackground();
         bBucksLabel.textContent = `B-Bucks: ${bBucks}`; // <-- Opdater label med det samme!
-        console.log(`🔄 Indlæst bBucks for ${playerUsername}: ${bBucks}`);
     } else {
         console.log("❌ Ingen bruger logget ind");
         document.getElementById("username").innerText = "Ikke logget ind";
@@ -971,21 +972,19 @@ async function loginWithGoogle() {
         const result = await signInWithPopup(auth, provider);
         const user = result.user;
 
-        // Tjek om brugeren allerede har et username i Firestore
         const usersRef = collection(db, "users");
         const q = query(usersRef, where("email", "==", user.email));
         const querySnapshot = await getDocs(q);
 
         let username;
         if (!querySnapshot.empty) {
-            // Brug eksisterende username fra Firestore
             username = querySnapshot.docs[0].data().username;
             bBucks = querySnapshot.docs[0].data().bBucks ?? 0;
+            donation = querySnapshot.docs[0].data().donation ?? 0;
         } else {
-            // Hvis ikke, brug displayName og gem det i Firestore
             username = user.displayName || user.email;
             bBucks = 0;
-            await addDoc(usersRef, { email: user.email, username: username, bBucks: bBucks });
+            await addDoc(usersRef, { email: user.email, username: username, bBucks: bBucks, donation: donation });
         }
 
         playerUsername = username;
@@ -993,8 +992,8 @@ async function loginWithGoogle() {
         logInd.style.display = "none";
         logUd.style.display = "inline-block";
         bBucksLabel.textContent = `B-Bucks: ${bBucks}`;
-        // Gem bBucks til brugeren i Firestore users collection (hvis du vil opdatere ved login)
-        await saveBBucksForUser(playerUsername, bBucks);
+        // Gem bBucks og donation til brugeren i Firestore users collection
+        await saveBBucksForUser(playerUsername, bBucks, donation);
         console.log("✅ Logget ind som:", playerUsername);
 
     } catch (error) {
@@ -1036,13 +1035,15 @@ createAccountBtn.addEventListener("click", async () => {
     await addDoc(usersRef, {
         username: username,
         password: hashedPassword,
-        bBucks: 0
+        bBucks: 0,
+        donation: 0 // Gemmer donation som 0 ved oprettelse
     });
 
     playerUsername = username;
     document.getElementById("username").innerText = `Logget ind som: ${playerUsername}`;
     bBucks = 0;
     bBucksLabel.textContent = `B-Bucks: ${bBucks}`;
+    applyVIPBackground()
     alert("Konto oprettet!");
 });
 
@@ -1066,11 +1067,14 @@ loginBtn.addEventListener("click", async () => {
     loginMessage.textContent = "✅ Login succesfuld!";
     playerUsername = username;
     bBucks = userData.bBucks ?? 0;
+    donation = userData.donation ?? 0;
     bBucksLabel.textContent = `B-Bucks: ${bBucks}`;
     document.getElementById("username").innerText = `Logget ind som: ${playerUsername}`;
-    // Gem bBucks til brugeren i Firestore users collection (hvis du vil opdatere ved login)
-    await saveBBucksForUser(playerUsername, bBucks);
-    startGame();
+    // Gem bBucks og donation til brugeren i Firestore users collection
+    await saveBBucksForUser(playerUsername, bBucks, donation);
+    applyVIPBackground()
+    console.log(`🔄 Indlæst B-Bucks for ${playerUsername}: ${bBucks}`);
+    console.log(`🔄 Indlæst donation for ${playerUsername}: ${donation}`);
   } else {
     loginMessage.textContent = "❌ Forkert kodeord!";
   }
@@ -1146,19 +1150,50 @@ async function loadBBucksForUser(username) {
     return 0;
 }
 
-// Funktion til at gemme bBucks for en bruger i Firestore users collection
-async function saveBBucksForUser(username, bBucks) {
+async function loaddonationForUser(username) {
+    try {
+        const usersRef = collection(db, "users");
+        const q = query(usersRef, where("username", "==", username));
+        const querySnapshot = await getDocs(q);
+        if (!querySnapshot.empty) {
+            const data = querySnapshot.docs[0].data();
+            return data.donation ?? 0;
+        }
+    } catch (error) {
+        console.error("🚨 Fejl ved hentning af donation:", error);
+    }
+    return 0;
+}
+
+function applyVIPBackground() {
+    const gameContainer = document.getElementById("gameContainer");
+
+    if (donation >= 5) {
+        console.log("🎉 Du har VIP-baggrund!");
+        gameContainer.style.height = "100vh";
+        gameContainer.style.backgroundImage = "url('Baggrunde/Bjørnedyr_i_kamp_i_rummet.png')";
+        gameContainer.style.backgroundSize = "cover";
+        gameContainer.style.backgroundPosition = "center";
+    } else {
+        //gameContainer.style.backgroundImage = "none"; // Eller en standardbaggrund
+        console.log(" Du har IKKE VIP-baggrund!");
+    }
+}
+
+
+// Funktion til at gemme bBucks og donation for en bruger i Firestore users collection
+async function saveBBucksForUser(username, bBucks, donation = 0) {
     try {
         const usersRef = collection(db, "users");
         const q = query(usersRef, where("username", "==", username));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
             const docSnap = querySnapshot.docs[0];
-            await updateDoc(doc(db, "users", docSnap.id), { bBucks: bBucks });
-            console.log(`✅ bBucks gemt for ${username}: ${bBucks}`);
+            await updateDoc(doc(db, "users", docSnap.id), { bBucks: bBucks, donation: donation });
+            console.log(`✅ bBucks og donation gemt for ${username}: ${bBucks}, donation: ${donation}`);
         }
     } catch (error) {
-        console.error("🚨 Fejl ved gemning af bBucks:", error);
+        console.error("🚨 Fejl ved gemning af bBucks/donation:", error);
     }
 }
 
@@ -1172,6 +1207,8 @@ playWithoutLoginBtn.addEventListener("click", async function () {
         playerUsername = inputName;
         document.getElementById("username").innerText = `Spiller: ${playerUsername}`;
         bBucks = await loadBBucksForUser(playerUsername);
+        donation = await loaddonationForUser(playerUsername);
+        applyVIPBackground();
         bBucksLabel.textContent = `B-Bucks: ${bBucks}`;
         console.log(`🔄 Indlæst bBucks for ${playerUsername}: ${bBucks}`);
     } else {
@@ -1246,7 +1283,7 @@ function toggleLeaderboard() {
     }
 }
 
-async function saveLeaderboardData(username, count, bBucks, VIP) {
+async function saveLeaderboardData(username, count, bBucks, donation) {
     const validationResult = isValidUsername(username);
     if (validationResult !== true) {
         console.error("Ugyldigt brugernavn, data bliver ikke gemt:", validationResult);
@@ -1268,14 +1305,14 @@ async function saveLeaderboardData(username, count, bBucks, VIP) {
                 await updateDoc(doc(db, "leaderboard", docSnap.id), { count: count });
             }
         } else {
-            await addDoc(leaderboardRef, { username: username, count: count, VIP: VIP });
+            await addDoc(leaderboardRef, { username: username, count: count, donation: donation });
         }
 
         console.log("✅ Leaderboard opdateret!");
         fetchLeaderboard();
 
-        // ✅ Gem bBucks i users-collection
-        await saveBBucksForUser(username, bBucks);
+        // ✅ Gem bBucks og donation i users-collection
+        await saveBBucksForUser(username, bBucks, donation);
 
     } catch (error) {
         console.error("🚨 Fejl ved gemning af leaderboard:", error);
@@ -1299,7 +1336,6 @@ const gameContainer = document.getElementById("gameContainer");
 startBtn.addEventListener("click", () => {
     mainMenu.style.display = "none";   // Skjul menu
     gameContainer.style.display = "block";  // Vis spillet
-    startGame(); // Kald din spilstart-funktion
 });
 
 
