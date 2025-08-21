@@ -1168,16 +1168,26 @@ async function loaddonationForUser(username) {
 function applyVIPBackground() {
     const gameContainer = document.getElementById("gameContainer");
 
-    if (donation >= 5) {
-        console.log("🎉 Du har VIP-baggrund!");
-        gameContainer.style.height = "100vh";
-        gameContainer.style.backgroundImage = "url('Baggrunde/Bjørnedyr_i_kamp_i_rummet.png')";
-        gameContainer.style.backgroundSize = "cover";
-        gameContainer.style.backgroundPosition = "center";
-    } else {
-        //gameContainer.style.backgroundImage = "none"; // Eller en standardbaggrund
-        console.log(" Du har IKKE VIP-baggrund!");
+    if (donation >= 150) {
+        gameContainer.style.backgroundImage = "url('Baggrunde/Episk Bjørnedyr.png')";
     }
+    else if (donation >= 5) {
+        gameContainer.style.backgroundImage = "url('Baggrunde/Bjørnedyr_i_kamp_i_rummet.png')";
+    } 
+    else {
+        //gameContainer.style.backgroundImage = "none"; // Eller en standardbaggrund
+        sygdomsLossPreviewLabel.style.color = "black";
+        warLossPreviewLabel.style.color = "black";
+        console.log(" Du har IKKE VIP-baggrund!");
+        return;
+    }
+    gameContainer.style.height = "100vh";
+    gameContainer.style.backgroundSize = "cover";
+    gameContainer.style.backgroundPosition = "center";
+    gameContainer.style.color =  "white";
+    sygdomsLossPreviewLabel.style.color = "white";
+    warLossPreviewLabel.style.color = "white";
+    console.log("🎉 Du har VIP-baggrund!");
 }
 
 
