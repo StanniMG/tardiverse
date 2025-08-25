@@ -716,7 +716,7 @@ let gameTimer = setInterval(function () {
         }
         updateUI();
     }
-}, 100); // Den skal være på 1000 for at tælle korrekt
+}, 1000); // Den skal være på 1000 for at tælle korrekt
 
 
 
@@ -1382,5 +1382,6 @@ startBtn.addEventListener("click", () => {
     mainMenu.style.display = "none";   // Skjul menu
     gameContainer.style.display = "block";  // Vis spillet
 });
+
 
 
