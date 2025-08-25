@@ -80,12 +80,17 @@
         <div id="celledelingCountdownLabel" class="preview" style="display: none;"></div>
         <div id="gameOverLabel" style="display: none;">Du har tabt spillet!</div>
         <div id="completedLabel" style="display: none;">Du har vundet spillet!</div>
-        <div id="katastrofeLabel"></div>
+        <div id="katastrofeLabel">Katastrofe: Du har ikke mistet nogen bjørnedyr.</div>
 
         <div id="game-content">
             
             <div id="Label">
                 <div id="levelLabel">Level: 0</div>
+                    <div class="hud">
+                        <div class="xp-bar" id="xpBar" aria-label="XP bar"></div>
+                    </div>
+
+                        
                 <label id="increasePerSecLabel">3 bjørnedyr Per sekund</label><br>
             </div>
             <label id="talLabel">0</label>
@@ -118,5 +123,6 @@
     </div>
     <!-- Læsning af spillets script -->
     <script type="module" src="index.js" defer></script>
+
 </body>
 </html>
