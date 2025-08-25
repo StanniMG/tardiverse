@@ -420,12 +420,15 @@ function restart() {
     baseWarLoss = 100;
     baseSygdomsLoss = 0.5;
     level = 0;
+    xpInLevel = 0;
+    render();
     nextCatastrophe = "Krig";
     completed = false;
     gameOverLabel.style.display = "none";
     completedLabel.style.display = "none";
     celledelingCountdownLabel.style.display = "none";
-    katastrofeLabel.style.display = "none";
+    //katastrofeLabel.style.display = "none";
+    katastrofeLabel.style.visibility = "hidden";
 
     document.body.style.backgroundColor = "hsl(0, 0%, 95%)";
 
@@ -713,7 +716,7 @@ let gameTimer = setInterval(function () {
         }
         updateUI();
     }
-}, 1000); // Den skal være på 1000 for at tælle korrekt
+}, 100); // Den skal være på 1000 for at tælle korrekt
 
 
 
@@ -834,11 +837,14 @@ function handlePointLoss() {
     }
     
     level++;
+    addLevel(1);
     updateUI();
     
-    katastrofeLabel.style.display = "block";
+    //katastrofeLabel.style.display = "block";
+    katastrofeLabel.style.visibility = "visible";
     setTimeout(() => {
-        katastrofeLabel.style.display = "none";
+        //katastrofeLabel.style.display = "none";
+        katastrofeLabel.style.visibility = "hidden";
     }, 5000);
     nextCatastrophe = nextCatastrophe === "Krig" ? "Sygdom" : "Krig";
     countdown = baseCountdown;
@@ -895,6 +901,35 @@ howToPlay.onclick = function () {
 
 
 
+// Konfiguration
+const SEGMENTS_PER_LEVEL = 10;
+
+// State
+
+let xpInLevel = 0;
+const xpBar = document.getElementById('xpBar');
+
+// Lav 10 segmenter
+const segments = [];
+for (let i = 0; i < SEGMENTS_PER_LEVEL; i++) {
+    const seg = document.createElement('div');
+    seg.className = 'seg';
+    xpBar.appendChild(seg);
+    segments.push(seg);
+}
+
+function render() {
+    // Opdater segmenternes fyldning
+    segments.forEach((seg, i) => {
+      if (i < xpInLevel) seg.classList.add('filled');
+      else seg.classList.remove('filled');
+    });
+}
+
+function addLevel(amount = 1) {
+    xpInLevel += amount;
+    render();
+}
 
 
 
