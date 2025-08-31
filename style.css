@@ -357,11 +357,20 @@ button:hover { filter: brightness(1.08); }
     align-items: center;
     justify-content: center;
     color: white; /* Hvis du vil have teksten læsbar */
-    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.7); /* Gør teksten mere tydelig */
+    text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.751); /* Gør teksten mere tydelig */
 }
 
-
-
+#logo {
+    font-size: 2.5em;
+    margin-bottom: 0;
+}
+#author {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: normal;
+    font-size: 1.1em;
+    color: hsl(0, 75%, 91%);
+}
 #startGameBtn {
     background-color: hsl(120, 100%, 40%);
     color: white;
