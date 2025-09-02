@@ -238,6 +238,8 @@ let start = false;
 // Perms
 let bBucks = 0;
 let donation = 0;
+let unlockedPlanets = ["jorden"];
+let venusCost = 3;
 
 
 // Helper function to format numbers with a dot every three zeros
@@ -1103,7 +1105,6 @@ let playerUsername = "";
 // Lyt efter login-status (efter auth er initialiseret!)
 auth.onAuthStateChanged(async (user) => {
     if (user) {
-        console.log("✅ Bruger logget ind:", user.displayName);
         document.getElementById("username").innerText = `Logget ind som: ${user.displayName}`;
         logInd.style.display = "none";
         logUd.style.display = "inline-block";
@@ -1111,7 +1112,8 @@ auth.onAuthStateChanged(async (user) => {
 
         // Hent bBucks for brugeren og sæt startværdien
         bBucks = await loadBBucksForUser(playerUsername);
-        donation = await loaddonationForUser(playerUsername);
+        donation = await loadDonationForUser(playerUsername);
+        //unlockedPlanets = await loadPlanetsForUser(playerUsername);
         applyVIPBackground();
         bBucksLabel.textContent = `B-Bucks: ${bBucks}`; // <-- Opdater label med det samme!
     } else {
@@ -1151,7 +1153,7 @@ async function loginWithGoogle() {
         logUd.style.display = "inline-block";
         bBucksLabel.textContent = `B-Bucks: ${bBucks}`;
         // Gem bBucks og donation til brugeren i Firestore users collection
-        await saveBBucksForUser(playerUsername, bBucks, donation);
+        await saveBBucksForUser(playerUsername, bBucks, donation, unlockedPlanets);
         console.log("✅ Logget ind som:", playerUsername);
 
     } catch (error) {
@@ -1194,7 +1196,8 @@ createAccountBtn.addEventListener("click", async () => {
         username: username,
         password: hashedPassword,
         bBucks: 0,
-        donation: 0 // Gemmer donation som 0 ved oprettelse
+        donation: 0,
+        unlockedPlanets: ["jorden"] // Tilføj denne linje
     });
 
     playerUsername = username;
@@ -1226,13 +1229,17 @@ loginBtn.addEventListener("click", async () => {
     playerUsername = username;
     bBucks = userData.bBucks ?? 0;
     donation = userData.donation ?? 0;
+    
+    // HENT unlockedPlanets FØRST!
+    unlockedPlanets = await loadPlanetsForUser(playerUsername);
+    
     bBucksLabel.textContent = `B-Bucks: ${bBucks}`;
     document.getElementById("username").innerText = `Logget ind som: ${playerUsername}`;
-    // Gem bBucks og donation til brugeren i Firestore users collection
-    await saveBBucksForUser(playerUsername, bBucks, donation);
-    applyVIPBackground()
+    applyVIPBackground();
+    
     console.log(`🔄 Indlæst B-Bucks for ${playerUsername}: ${bBucks}`);
     console.log(`🔄 Indlæst donation for ${playerUsername}: ${donation}`);
+    console.log(`🔄 Indlæst unlockedPlanets for ${playerUsername}: ${JSON.stringify(unlockedPlanets)}`);
   } else {
     loginMessage.textContent = "❌ Forkert kodeord!";
   }
@@ -1307,11 +1314,12 @@ async function loadBBucksForUser(username) {
     return 0;
 }
 
-async function loaddonationForUser(username) {
+async function loadDonationForUser(username) {
     try {
         const usersRef = collection(db, "users");
         const q = query(usersRef, where("username", "==", username));
         const querySnapshot = await getDocs(q);
+        
         if (!querySnapshot.empty) {
             const data = querySnapshot.docs[0].data();
             return data.donation ?? 0;
@@ -1321,6 +1329,54 @@ async function loaddonationForUser(username) {
     }
     return 0;
 }
+
+
+async function loadPlanetsForUser(username) {
+  await ensureAuth();
+  try {
+    const usersRef = collection(db, "users");
+    const q = query(usersRef, where("username", "==", username));
+    const snap = await getDocs(q);
+    
+    if (snap.empty) {
+      console.warn("Ingen user-doc. Returnerer default planets.");
+      return ["jorden"];
+    }
+
+    const docSnap = snap.docs[0];
+    const data = docSnap.data() || {};
+    let planets = data.unlockedPlanets;
+
+    // Håndter alle mulige tilfælde af manglende eller ugyldig data
+    if (!Array.isArray(planets)) {
+      if (typeof planets === "string") {
+        // Hvis det er en string, prøv at konvertere til array
+        planets = planets.split(",").map(s => s.trim().toLowerCase()).filter(Boolean);
+      } else {
+        // Hvis det er noget andet, brug default
+        planets = ["jorden"];
+      }
+      
+      // Opdater databasen med det korrekte array
+      await updateDoc(docSnap.ref, { unlockedPlanets: planets });
+    }
+    
+    // Sikr at "jorden" altid er inkluderet
+    if (!planets.includes("jorden")) {
+      planets.push("jorden");
+      await updateDoc(docSnap.ref, { unlockedPlanets: planets });
+    }
+    
+    console.log(`🔄 Indlæst unlockedPlanets for ${username}: ${JSON.stringify(planets)}`);
+    return planets;
+    
+  } catch (err) {
+    console.error("🚨 Fejl ved hentning af unlockedPlanets:", err);
+    return ["jorden"];
+  }
+}
+
+
 
 function applyVIPBackground() {
     const gameContainer = document.getElementById("gameContainer");
@@ -1335,7 +1391,6 @@ function applyVIPBackground() {
         //gameContainer.style.backgroundImage = "none"; // Eller en standardbaggrund
         sygdomsLossPreviewLabel.style.color = "black";
         warLossPreviewLabel.style.color = "black";
-        console.log(" Du har IKKE VIP-baggrund!");
         return;
     }
     gameContainer.style.height = "100vh";
@@ -1349,15 +1404,21 @@ function applyVIPBackground() {
 
 
 // Funktion til at gemme bBucks og donation for en bruger i Firestore users collection
-async function saveBBucksForUser(username, bBucks, donation = 0, gamemode) {
+async function saveBBucksForUser(username, bBucks, donation = 0, unlockedPlanets) {
     try {
         const usersRef = collection(db, "users");
         const q = query(usersRef, where("username", "==", username));
         const querySnapshot = await getDocs(q);
         if (!querySnapshot.empty) {
             const docSnap = querySnapshot.docs[0];
-            await updateDoc(doc(db, "users", docSnap.id), { bBucks: bBucks, donation: donation });
-            console.log(`✅ bBucks og donation gemt for ${username}: ${bBucks}, donation: ${donation}`);
+            // Sikrer at unlockedPlanets altid er et array
+            const planets = Array.isArray(unlockedPlanets) ? unlockedPlanets : ["jorden"];
+            await updateDoc(doc(db, "users", docSnap.id), { 
+                bBucks: bBucks, 
+                donation: donation, 
+                unlockedPlanets: planets 
+            });
+            console.log(`✅ bBucks og donation gemt for ${username}: ${bBucks}, donation: ${donation}, unlockedPlanets: ${JSON.stringify(planets)}`);
         }
     } catch (error) {
         console.error("🚨 Fejl ved gemning af bBucks/donation:", error);
@@ -1374,10 +1435,12 @@ playWithoutLoginBtn.addEventListener("click", async function () {
         playerUsername = inputName;
         document.getElementById("username").innerText = `Spiller: ${playerUsername}`;
         bBucks = await loadBBucksForUser(playerUsername);
-        donation = await loaddonationForUser(playerUsername);
+        donation = await loadDonationForUser(playerUsername);
+        //unlockedPlanets = await loadPlanetsForUser(playerUsername); // <-- load og opdater først!
         applyVIPBackground();
         bBucksLabel.textContent = `B-Bucks: ${bBucks}`;
         console.log(`🔄 Indlæst bBucks for ${playerUsername}: ${bBucks}`);
+        //console.log(`🔄 Indlæst 112345678unlockedPlanets for ${playerUsername}: ${JSON.stringify(unlockedPlanets)}`);
     } else {
         alert(validationResult);
     }
@@ -1483,7 +1546,7 @@ async function saveLeaderboardData(username, count, bBucks, donation, gamemode) 
         fetchLeaderboard();
 
         // ✅ Gem bBucks og donation i users-collection
-        await saveBBucksForUser(username, bBucks, donation);
+        await saveBBucksForUser(username, bBucks, donation, unlockedPlanets);
 
     } catch (error) {
         console.error("🚨 Fejl ved gemning af leaderboard:", error);
@@ -1509,6 +1572,16 @@ const venusModeBtn = document.getElementById("venusModeBtn");
 startBtn.addEventListener("click", () => {
     mainMenu.style.display = "none";
     gamemodeMenu.style.display = "block";
+    jordenModeBtn.classList.add("unlocked");
+    if (unlockedPlanets.includes("venus")) {
+        venusModeBtn.textContent = `Venus`;
+        venusModeBtn.classList.add("unlocked");
+        venusModeBtn.classList.remove("locked");
+    } else {
+        venusModeBtn.textContent = `Venus (Lås op for ${venusCost} B-Bucks)`;
+        venusModeBtn.classList.add("locked");
+        venusModeBtn.classList.remove("unlocked");
+    }
 });
 
 jordenModeBtn.addEventListener("click", () => {
@@ -1519,10 +1592,28 @@ jordenModeBtn.addEventListener("click", () => {
     startGame("jorden");
 });
 
-venusModeBtn.addEventListener("click", () => {
-    gamemodeMenu.style.display = "none";
-    gameContainer.style.display = "block";
-    collectionName = "leaderboard_venus"
-    fetchLeaderboard();
-    startGame("venus");
+venusModeBtn.addEventListener("click", async () => {
+    // Hent den seneste version af unlockedPlanets fra databasen
+    const currentPlanets = await loadPlanetsForUser(playerUsername);
+    
+    if (bBucks >= venusCost && !currentPlanets.includes("venus")) {
+        bBucks -= venusCost;
+        currentPlanets.push("venus");
+        unlockedPlanets = currentPlanets; // Opdater den globale variabel
+        
+        bBucksLabel.textContent = `B-Bucks: ${bBucks}`;
+        await saveBBucksForUser(playerUsername, bBucks, donation, unlockedPlanets);
+        
+        gamemodeMenu.style.display = "none";
+        gameContainer.style.display = "block";
+        collectionName = "leaderboard_venus";
+        fetchLeaderboard();
+        startGame("venus");
+    } else if (currentPlanets.includes("venus")) {
+        gamemodeMenu.style.display = "none";
+        gameContainer.style.display = "block";
+        collectionName = "leaderboard_venus";
+        fetchLeaderboard();
+        startGame("venus");
+    } 
 });
