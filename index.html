@@ -16,7 +16,6 @@
 </head>
 
 <body>
-
     <!-- Main Menu -->
     <div id="mainMenu">
         <h1 id="logo">Tardiverse</h1>
@@ -76,12 +75,24 @@
                 Spillet slutter, hvis du mister alle bjørnedyr - eller hvis du når level 10!</p>
         </div>
     </div>
-        <!-- Selve spillet -->
-    <div id="leaderboard">Leaderboard</div>
-    
-    <div id="gameContainer" style="display: none;">
 
-        <label id="countdownLabel">Tid til Krig: 30 sekunder</label>
+
+    <!-- Gamemodes -->
+     <div>
+        <div id="gamemodeMenu" style="display: none;">
+            <h2>Vælg Spiltilstand</h2>
+            <button id="jordenModeBtn">Jorden</button>
+            <button id="venusModeBtn">Venus</button>
+            <p id="gamemodeDescription">Jorden: Standard gameplay med moderate udfordringer.<br>
+            Venus: Øget sværhedsgrad med hyppigere og mere alvorlige katastrofer.</p>
+        </div>
+     </div>
+
+
+    <!-- Selve spillet -->
+    <div id="gameContainer" style="display: none;">
+        <div id="leaderboard">Leaderboard</div>
+        <label id="countdownLabel">Tid til krig: 30 sekunder</label>
         <div id="warLossPreviewLabel" class="preview">Tab ved næste krig: 100</div><br>
         <div id="sygdomsLossPreviewLabel" class="preview">Tab ved næste sygdom: 50%, men ingen random upgrades</div><br>
         <div id="celledelingCountdownLabel" class="preview" style="display: none;"></div>
