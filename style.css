@@ -344,14 +344,12 @@ cursor: pointer;
 button:hover { filter: brightness(1.08); }
 
 
-
-
 /* Main Menu */
 
 #mainMenu {
     width: 100%;
     height: 100vh; /* Fylder hele skærmen */
-    background-image: url('assets/Baggrunde/Bjørnedyr.png'); /* Skift til din billedsti */
+    background-image: url('assets/Baggrunde/Bjørnedyr.png');
     background-size: cover; /* Sørger for at billedet dækker hele området */
     background-position: center; /* Centrerer billedet */
     display: flex;
@@ -399,4 +397,33 @@ button:hover { filter: brightness(1.08); }
     z-index: 1000; /* Sørg for at menuen er øverst */
     text-align: center;
     background-color: hsl(0, 0%, 95%);
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+.planet {
+    color: black;
+    margin-bottom: 5px;
+    border-radius: 5px;
+    font-size: 1.3em;
+    font-weight: bold;
+    text-align: center;
+    cursor: pointer;
+    width: 100px;
+    height: 45px;
+    border: black solid 2px;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.planet.locked {
+    background-color: rgb(102, 102, 102);
+    cursor: not-allowed;
+}
+
+.planet.unlocked {
+    background-color: hsl(120, 99%, 34%);
+    color: black;
+}
+
+#permsContainer {
+    margin-bottom: 10px;
 }
