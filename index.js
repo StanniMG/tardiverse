@@ -34,8 +34,8 @@ const bBucksLabel = document.getElementById("bBucksLabel");
 
 // Opret lydobjekter
 const clickSounds = [
-    new Audio("lyde/klik/klik_1.wav"),
-    new Audio("lyde/klik/klik_2.wav")
+    new Audio("assets/lyde/klik/klik_1.wav"),
+    new Audio("assets/lyde/klik/klik_2.wav")
 ];
 
 // Find alle knapper med klassen "upgrade" og tilføj event listeners
@@ -51,75 +51,196 @@ upgradeButtons.forEach(button => {
 
 
 
+// Gamemode config
+const gamemodes = {
+    jorden: {
+        tid: 1000,
+        count: 200,
+        countPerSec: 3,
+        baseCountdown: 30,
+        baseWarLoss: 100,
+        nextCatastrophe: "Krig",
+        baseUpgradeLoss: 1,
+        formeringCost: 50,
+        celledelingCost: 100,
+        celledelingCost2: 200,
+        celledelingCost3: 5000,
+        celledelingMultiplier: 0.1,
+        celledelingMultiplier2: 0.2,
+        celledelingMultiplier3: 0.3,
+        skjoldCost: 75,
+        skjoldCost2: 150,
+        skjoldCost3: 300,
+        skjoldDefense1: 40,
+        skjoldDefense2: 150,
+        skjoldDefense3: 400,
+        medicinCost1: 200,
+        medicinCost2: 500,
+        medicinCost3: 8000,
+        katastrofeCost: 100,
+        katastrofeCost2: 400,
+        katastrofeCost3: 2000,
+        katastrofeDelay1: 10,
+        katastrofeDelay2: 15,
+        katastrofeDelay3: 20
+    },
+    venus: {
+        tid: 500,
+        count: 300,
+        countPerSec: 10,
+        baseCountdown: 20,
+        baseWarLoss: 150,
+        nextCatastrophe: "Sygdom",
+        baseUpgradeLoss: 1,
+        formeringCost: 75,
+        celledelingCost: 200,
+        celledelingCost2: 700,
+        celledelingCost3: 8000,
+        celledelingMultiplier: 0.15,
+        celledelingMultiplier2: 0.3,
+        celledelingMultiplier3: 0.4,
+        skjoldCost: 60,
+        skjoldCost2: 100,
+        skjoldCost3: 300,
+        skjoldDefense1: 45,
+        skjoldDefense2: 150,
+        skjoldDefense3: 600,
+        medicinCost1: 200,
+        medicinCost2: 500,
+        medicinCost3: 8000,
+        katastrofeCost: 100,
+        katastrofeCost2: 400,
+        katastrofeCost3: 2000,
+        katastrofeDelay1: 10,
+        katastrofeDelay2: 15,
+        katastrofeDelay3: 20
+    }
+};
+let gamemode = null;
 
-// Variables
-let count = 200;
-let countPerSec = 3;
-let formeringCost = 50;
-let plusIncreasePerSec = 1;
+// Globale variabler til spillet
+let count, countPerSec, formeringCost, plusIncreasePerSec, tid, baseCountdown, countdown, celledelingCountdown, newCelledelingCountdown, level, baseWarLoss, nextCatastrophe, baseUpgradeLoss, baseSygdomsLoss, sygdomsLoss, upgradeLoss, completed;
+let celledelingActive, celledelingActive2, celledelingActive3, celledelingCost, celledelingCost2, celledelingCost3, celledelingMultiplier, celledelingMultiplier2, celledelingMultiplier3;
+let skjoldActive, skjoldActive2, skjoldActive3, skjoldCost, skjoldCost2, skjoldCost3, skjoldDefense1, skjoldDefense2, skjoldDefense3;
+let medicinActive1, medicinActive2, medicinActive3, medicinCost1, medicinCost2, medicinCost3;
+let katastrofeCost, katastrofeCost2, katastrofeCost3, katastrofeUpActive, katastrofeUpActive2, katastrofeUpActive3, katastrofeDelay1, katastrofeDelay2, katastrofeDelay3;
 
-let baseCountdown = 30
-let countdown = baseCountdown; // Tid i sekunder
+let timer = false;
+// Start spillet med valgt gamemode
+function startGame(selectedMode) {
+    gamemode = selectedMode;
+    let mode = gamemodes[gamemode];
+    
+
+    // Init alle variabler
+    tid = mode.tid;
+    count = mode.count;
+    countPerSec = mode.countPerSec;
+    formeringCost = mode.formeringCost;
+    plusIncreasePerSec = 1;
+    baseCountdown = mode.baseCountdown;
+    countdown = baseCountdown;
+    celledelingCountdown = 7;
+    newCelledelingCountdown = celledelingCountdown;
+    level = 0;
+    baseWarLoss = mode.baseWarLoss;
+    nextCatastrophe = mode.nextCatastrophe;
+    baseUpgradeLoss = mode.baseUpgradeLoss;
+    baseSygdomsLoss = 0.5;
+    sygdomsLoss = baseSygdomsLoss;
+    upgradeLoss = baseUpgradeLoss;
+    completed = false;
+
+    // Upgrades
+    celledelingActive = false;
+    celledelingActive2 = false;
+    celledelingActive3 = false;
+    celledelingCost = mode.celledelingCost;
+    celledelingCost2 = mode.celledelingCost2;
+    celledelingCost3 = mode.celledelingCost3;
+    celledelingMultiplier = mode.celledelingMultiplier;
+    celledelingMultiplier2 = mode.celledelingMultiplier2;
+    celledelingMultiplier3 = mode.celledelingMultiplier3;
+
+    skjoldActive = false;
+    skjoldActive2 = false;
+    skjoldActive3 = false;
+    skjoldCost = mode.skjoldCost;
+    skjoldCost2 = mode.skjoldCost2;
+    skjoldCost3 = mode.skjoldCost3;
+    skjoldDefense1 = mode.skjoldDefense1;
+    skjoldDefense2 = mode.skjoldDefense2;
+    skjoldDefense3 = mode.skjoldDefense3;
+
+    medicinActive1 = false;
+    medicinActive2 = false;
+    medicinActive3 = false;
+    medicinCost1 = mode.medicinCost1;
+    medicinCost2 = mode.medicinCost2;
+    medicinCost3 = mode.medicinCost3;
+
+    katastrofeCost = mode.katastrofeCost;
+    katastrofeCost2 = mode.katastrofeCost2;
+    katastrofeCost3 = mode.katastrofeCost3;
+    katastrofeUpActive = false;
+    katastrofeUpActive2 = false;
+    katastrofeUpActive3 = false;
+    katastrofeDelay1 = mode.katastrofeDelay1;
+    katastrofeDelay2 = mode.katastrofeDelay2;
+    katastrofeDelay3 = mode.katastrofeDelay3;
+
+    gameOver = false;
+    start = false;
+    xpInLevel = 0;
+    render();
+    completed = false;
+
+    countdownLabel.textContent = `Tid til ${nextCatastrophe}: ${countdown} år`;
+
+    // Skjul/vis relevante elementer
+    document.getElementById("gameOverLabel").style.display = "none";
+    document.getElementById("completedLabel").style.display = "none";
+    document.getElementById("celledelingCountdownLabel").style.display = "none";
+    document.getElementById("katastrofeLabel").style.visibility = "hidden";
+
+    gameOverLabel.style.display = "none";
+    completedLabel.style.display = "none";
+    celledelingCountdownLabel.style.display = "none";
+    //katastrofeLabel.style.display = "none";
+    katastrofeLabel.style.visibility = "hidden";
+
+    document.body.style.backgroundColor = "hsl(0, 0%, 95%)";
+    // Auto-increment points per second
+    if (!timer) {
+        let gameTimer = setInterval(function () {
+            if (!start) return;
+            if (!gameOver) {
+                count += countPerSec;
+                timer = true;
+                if (countdown > 1) {
+                    countdown--;
+                    countdownLabel.textContent = `Tid til ${nextCatastrophe}: ${countdown} år`;
+                } else {
+                    handlePointLoss();
+                }
+                updateUI();
+                console.log("Starting: ", tid);
+
+            }
+        }, tid); // Den skal være på 1000 for at tælle korrekt
+    }
+
+    updateUI();
+}
+
 let gameOver = false;
-let celledelingCountdown = 7; // Tid til celledeling-bonus
-let newCelledelingCountdown = celledelingCountdown;
-let level = 0; // Start-level
-let baseWarLoss = 100;
-let nextCatastrophe = "Krig"; // Starter med Krig eller Sygdom
-let baseUpgradeLoss = 1;
-let baseSygdomsLoss = 0.5;
-let sygdomsLoss = baseSygdomsLoss;
-let upgradeLoss = baseUpgradeLoss;
 let start = false;
-let completed = false;
-// Upgrades
-
-const tooltip = document.getElementById("tooltip");
-
-// Celledeling
-let celledelingActive = false;
-let celledelingActive2 = false;
-let celledelingActive3 = false;
-let celledelingCost = 100;
-let celledelingCost2 = 200;
-let celledelingCost3 = 5000;
-
-// Skjold
-let skjoldActive = false;
-let skjoldActive2 = false;
-let skjoldActive3 = false;
-let skjoldCost = 75;
-let skjoldCost2 = 150;
-let skjoldCost3 = 300;
-let skjoldDefense1 = 40;
-let skjoldDefense2 = 150;
-let skjoldDefense3 = 400
-
-// Medicin
-let medicinActive1 = false;
-let medicinActive2 = false;
-let medicinActive3 = false;
-let medicinCost1 = 200;
-let medicinCost2 = 500;
-let medicinCost3 = 8000;
-
-// Forsinkelse
-let katastrofeCost = 100;
-let katastrofeCost2 = 400;
-let katastrofeCost3 = 2000; 
-let katastrofeUpActive = false; 
-let katastrofeUpActive2 = false;
-let katastrofeUpActive3 = false;
-let katastrofeDelay1 = 10
-let katastrofeDelay2 = 15
-let katastrofeDelay3 = 20
-
 // Perms
 let bBucks = 0;
 let donation = 0;
 
-// Helper function to format numbers with a dot every three zeros
 
+// Helper function to format numbers with a dot every three zeros
 
 function updateUI() {
     if (gameOver){
@@ -134,7 +255,7 @@ function updateUI() {
     complete()
     bBucksLabel.textContent = `B-Bucks: ${bBucks}`;
     talLabel.textContent = `${(count)}`;
-    increasePerSecLabel.textContent = `${(countPerSec)} bjørnedyr per sekund`;
+    increasePerSecLabel.textContent = `${(countPerSec)} bjørnedyr per år`;
     levelLabel.textContent = `Level: ${level}`;
     formeringUp.textContent = `Formering (${formeringCost})`;
     celledelingUp.textContent = `Celledeling 1 (${celledelingCost})`;
@@ -205,7 +326,7 @@ function updateUI() {
         celledelingUp.classList.remove("can-buy");
         celledelingUp.classList.add("purchased");
         celledelingUp.textContent = `Celledeling 1`;
-        celledelingCountdownLabel.textContent = `Tid til Celledeling: ${newCelledelingCountdown} sekunder`;
+        celledelingCountdownLabel.textContent = `Tid til Celledeling: ${newCelledelingCountdown} år`;
     }
     else if (count >= celledelingCost) {
         celledelingUp.classList.add("can-buy");
@@ -221,7 +342,7 @@ function updateUI() {
         celledelingUp2.classList.remove("can-buy");
         celledelingUp2.classList.add("purchased");
         celledelingUp2.textContent = `Celledeling 2`;
-        celledelingCountdownLabel.textContent = `Tid til Celledeling 2: ${newCelledelingCountdown} sekunder`;
+        celledelingCountdownLabel.textContent = `Tid til Celledeling 2: ${newCelledelingCountdown} år`;
     }
     else if (count >= celledelingCost2 && celledelingActive) {
         celledelingUp2.classList.add("can-buy");
@@ -236,7 +357,7 @@ function updateUI() {
         celledelingUp3.classList.remove("can-buy");
         celledelingUp3.classList.add("purchased");
         celledelingUp3.textContent = `Celledeling 3`;
-        celledelingCountdownLabel.textContent = `Tid til Celledeling 3: ${newCelledelingCountdown} sekunder`;
+        celledelingCountdownLabel.textContent = `Tid til Celledeling 3: ${newCelledelingCountdown} år`;
     }
     else if (count >= celledelingCost3 && celledelingActive2) {
         celledelingUp3.classList.add("can-buy");
@@ -370,8 +491,6 @@ function updateUI() {
         formeringUp.classList.remove("can-buy");
     }
 }
-// Initial UI setup
-updateUI();
 
 function showChangeLabel(amount) {
     // Hvis amount er positivt, vises et grønt tal med et + foran,
@@ -387,10 +506,10 @@ function showChangeLabel(amount) {
         bonusLabel.style.color = "black";
     }
     bonusLabel.style.opacity = 1;
-    // Skjul labelen efter 1 sekund
+    // Skjul labelen efter 1 år
     setTimeout(() => {
         bonusLabel.style.opacity = 0;
-    }, 1000); // Den skal være på 1000 
+    }, tid); // Den skal være på 1000 
 }
 
 let celledelingTimer = null; // Gem timer-ID'et globalt
@@ -455,19 +574,19 @@ function startCelledelingTimer() {
                 newCelledelingCountdown--;
             } else {
                 if (celledelingActive3) {
-                    const bonus = Math.round(count * 0.3);
+                    const bonus = Math.round(count * celledelingMultiplier3);
                     count += bonus;
                     showChangeLabel(bonus);
                     newCelledelingCountdown = celledelingCountdown;
                 }
                 else if (celledelingActive2) {
-                    const bonus = Math.round(count * 0.2);
+                    const bonus = Math.round(count * celledelingMultiplier2);
                     count += bonus;
                     showChangeLabel(bonus);
                     newCelledelingCountdown = celledelingCountdown;
                 }
                 else {
-                    const bonus = Math.round(count * 0.1);
+                    const bonus = Math.round(count * celledelingMultiplier);
                     count += bonus;
                     showChangeLabel(bonus);
                     newCelledelingCountdown = celledelingCountdown;
@@ -477,7 +596,7 @@ function startCelledelingTimer() {
             }
             updateUI();
         }
-    }, 1000);
+    }, tid); // 1000
 }
 
 // Celledeling-knap
@@ -637,7 +756,7 @@ katastrofeUp3.onclick = function () {
 
 
 
-// Tooltip-håndtering
+// Tooltip-håndtering (skal bruge globale variabler)
 [formeringUp, celledelingUp, celledelingUp2, celledelingUp3, skjoldUp, skjoldUp2, skjoldUp3, medicinUp1, medicinUp2, medicinUp3, katastrofeUp, katastrofeUp2, katastrofeUp3].forEach(button => {
     button.addEventListener("mouseover", (event) => {
         tooltip.style.display = "block";
@@ -645,11 +764,11 @@ katastrofeUp3.onclick = function () {
         tooltip.style.top = `${event.target.getBoundingClientRect().top - tooltip.offsetHeight - 10}px`;
 
         if (event.target === celledelingUp) {
-            tooltip.textContent = `Celledeling: Giver 10% af dine bjørnedyr hvert ${celledelingCountdown}. sekund. Koster ${celledelingCost} bjørnedyr.`;
+            tooltip.textContent = `Celledeling: Giver ${celledelingMultiplier * 100}% af dine bjørnedyr hvert ${celledelingCountdown}. år. Koster ${celledelingCost} bjørnedyr.`;
         } else if (event.target === celledelingUp2) {
-            tooltip.textContent = `Celledeling 2: Giver 20% af dine bjørnedyr hvert ${celledelingCountdown}. sekund. Koster ${celledelingCost2} bjørnedyr.`;
+            tooltip.textContent = `Celledeling 2: Giver ${celledelingMultiplier2 * 100}% af dine bjørnedyr hvert ${celledelingCountdown}. år. Koster ${celledelingCost2} bjørnedyr.`;
         } else if (event.target === celledelingUp3) {
-            tooltip.textContent = `Celledeling 3: Giver 30% af dine bjørnedyr hvert ${celledelingCountdown}. sekund. Koster ${celledelingCost3} bjørnedyr.`;
+            tooltip.textContent = `Celledeling 3: Giver ${celledelingMultiplier3 * 100}% af dine bjørnedyr hvert ${celledelingCountdown}. år. Koster ${celledelingCost3} bjørnedyr.`;
         }
         else if (event.target === skjoldUp) {
             tooltip.textContent = `Skjold: Reducerer krigstab med ${skjoldDefense1}. Koster ${skjoldCost} bjørnedyr.`;
@@ -666,14 +785,14 @@ katastrofeUp3.onclick = function () {
             tooltip.textContent = `Medicin 3: Reducerer sygdom til 5%. Koster ${medicinCost3} bjørnedyr.`;
         }
         else if (event.target === katastrofeUp) {
-            tooltip.textContent = `Forsinkelse: Forsink den næste katastrofe med ${katastrofeDelay1} sekunder. Koster ${katastrofeCost} bjørnedyr.`;
+            tooltip.textContent = `Forsinkelse: Forsink den næste katastrofe med ${katastrofeDelay1} år. Koster ${katastrofeCost} bjørnedyr.`;
         } else if (event.target === katastrofeUp2) {
-            tooltip.textContent = `Forsinkelse 2: Forsink den næste katastrofe med ${katastrofeDelay2} sekunder. Koster ${katastrofeCost2} bjørnedyr.`;
+            tooltip.textContent = `Forsinkelse 2: Forsink den næste katastrofe med ${katastrofeDelay2} år. Koster ${katastrofeCost2} bjørnedyr.`;
         } else if (event.target === katastrofeUp3) {
-            tooltip.textContent = `Forsinkelse 3: Forsink den næste katastrofe med ${katastrofeDelay3} sekunder. Koster ${katastrofeCost3} bjørnedyr.`;
+            tooltip.textContent = `Forsinkelse 3: Forsink den næste katastrofe med ${katastrofeDelay3} år. Koster ${katastrofeCost3} bjørnedyr.`;
         }
         else if (event.target === formeringUp) {
-            tooltip.textContent = `Formering: Bjørnedyr per sekund +1. Koster ${formeringCost} bjørnedyr.`;
+            tooltip.textContent = `Formering: Bjørnedyr per år +1. Koster ${formeringCost} bjørnedyr.`;
         }
     });
 
@@ -691,7 +810,7 @@ formeringUp.onclick = function () {
         return
     }
     if(gameOver){
-        restart()
+        startGame(gamemode)
         updateUI()
         return
     }
@@ -703,20 +822,7 @@ formeringUp.onclick = function () {
     }
 };
 
-// Auto-increment points per second
-let gameTimer = setInterval(function () {
-    if (!start) return;
-    if (!gameOver) {
-        count += countPerSec;
-        if (countdown > 1) {
-            countdown--;
-            countdownLabel.textContent = `Tid til ${nextCatastrophe}: ${countdown} sekunder`;
-        } else {
-            handlePointLoss();
-        }
-        updateUI();
-    }
-}, 1000); // Den skal være på 1000 for at tælle korrekt
+
 
 
 
@@ -845,7 +951,7 @@ function handlePointLoss() {
     setTimeout(() => {
         //katastrofeLabel.style.display = "none";
         katastrofeLabel.style.visibility = "hidden";
-    }, 5000);
+    }, tid * 5);
     nextCatastrophe = nextCatastrophe === "Krig" ? "Sygdom" : "Krig";
     countdown = baseCountdown;
 }
@@ -856,7 +962,7 @@ function complete() {
     if (completed) return;
     if (level >= 10) { // level skal være >= 10
         bBucks += 1;
-        saveLeaderboardData(playerUsername, count, bBucks, donation);
+        saveLeaderboardData(playerUsername, count, bBucks, donation, gamemode);
         completedLabel.textContent = "Du har vundet spillet!";
         completedLabel.style.display = "block";
         document.body.style.backgroundColor = "hsl(110, 100%, 50%)";
@@ -874,7 +980,7 @@ function checkGameOver() {
         gameOverLabel.textContent = "Du har tabt spillet!";
         gameOverLabel.style.display = "block";
         document.body.style.backgroundColor = "hsl(0, 0.00%, 36.90%)";
-        saveLeaderboardData(playerUsername, count, bBucks, donation);
+        saveLeaderboardData(playerUsername, count, bBucks, donation, gamemode);
 
         updateUI();
     }
@@ -930,6 +1036,23 @@ function addLevel(amount = 1) {
     xpInLevel += amount;
     render();
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -1134,7 +1257,6 @@ radioButtons.forEach(radio => {
 
 
 
-
 // Funktion til at logge ud
 async function logout() {
     try {
@@ -1204,10 +1326,10 @@ function applyVIPBackground() {
     const gameContainer = document.getElementById("gameContainer");
 
     if (donation >= 150) {
-        gameContainer.style.backgroundImage = "url('Baggrunde/Episk Bjørnedyr.png')";
+        gameContainer.style.backgroundImage = "url('assets/Baggrunde/Episk Bjørnedyr.png')";
     }
     else if (donation >= 5) {
-        gameContainer.style.backgroundImage = "url('Baggrunde/Bjørnedyr_i_kamp_i_rummet.png')";
+        gameContainer.style.backgroundImage = "url('assets/Baggrunde/Bjørnedyr_i_kamp_i_rummet.png')";
     } 
     else {
         //gameContainer.style.backgroundImage = "none"; // Eller en standardbaggrund
@@ -1227,7 +1349,7 @@ function applyVIPBackground() {
 
 
 // Funktion til at gemme bBucks og donation for en bruger i Firestore users collection
-async function saveBBucksForUser(username, bBucks, donation = 0) {
+async function saveBBucksForUser(username, bBucks, donation = 0, gamemode) {
     try {
         const usersRef = collection(db, "users");
         const q = query(usersRef, where("username", "==", username));
@@ -1261,11 +1383,14 @@ playWithoutLoginBtn.addEventListener("click", async function () {
     }
 });
 
+
+let collectionName;  
+collectionName = "leaderboard";
 // Hent og vis leaderboard
 async function fetchLeaderboard() {
     try {
-        const leaderboardRef = collection(db, "leaderboard");
-        // Sorter efter "count" i stedet for "level"
+        
+        const leaderboardRef = collection(db, collectionName);
         const q = query(leaderboardRef, orderBy("count", "desc"));
         const querySnapshot = await getDocs(q);
         const leaderboardData = new Map();
@@ -1328,16 +1453,17 @@ function toggleLeaderboard() {
     }
 }
 
-async function saveLeaderboardData(username, count, bBucks, donation) {
+async function saveLeaderboardData(username, count, bBucks, donation, gamemode) {
     const validationResult = isValidUsername(username);
     if (validationResult !== true) {
         console.error("Ugyldigt brugernavn, data bliver ikke gemt:", validationResult);
         return;
     }
     try {
-        console.log(`📌 Gemmer leaderboard: username=${username}, count=${count}`);
+        console.log(`📌 Gemmer leaderboard: username=${username}, count=${count}, gamemode=${gamemode}`);
 
-        const leaderboardRef = collection(db, "leaderboard");
+        const collectionName = gamemode === "venus" ? "leaderboard_venus" : "leaderboard_jorden";
+        const leaderboardRef = collection(db, collectionName);
         const q = query(leaderboardRef, where("username", "==", username));
         const querySnapshot = await getDocs(q);
 
@@ -1347,10 +1473,10 @@ async function saveLeaderboardData(username, count, bBucks, donation) {
             const existingCount = data.count ?? 0;
 
             if (existingCount < count) {
-                await updateDoc(doc(db, "leaderboard", docSnap.id), { count: count });
+                await updateDoc(doc(db, collectionName, docSnap.id), { count: count });
             }
         } else {
-            await addDoc(leaderboardRef, { username: username, count: count, donation: donation });
+            await addDoc(leaderboardRef, { username: username, count: count, donation: donation, gamemode: gamemode });
         }
 
         console.log("✅ Leaderboard opdateret!");
@@ -1374,14 +1500,29 @@ window.onload = () => {
 };
 
 const startBtn = document.getElementById("startGameBtn");
-const backBtn = document.getElementById("backToMenuBtn");
 const mainMenu = document.getElementById("mainMenu");
 const gameContainer = document.getElementById("gameContainer");
+const gamemodeMenu = document.getElementById("gamemodeMenu");
+const jordenModeBtn = document.getElementById("jordenModeBtn");
+const venusModeBtn = document.getElementById("venusModeBtn");
 
 startBtn.addEventListener("click", () => {
-    mainMenu.style.display = "none";   // Skjul menu
-    gameContainer.style.display = "block";  // Vis spillet
+    mainMenu.style.display = "none";
+    gamemodeMenu.style.display = "block";
 });
 
+jordenModeBtn.addEventListener("click", () => {
+    gamemodeMenu.style.display = "none";
+    gameContainer.style.display = "block";
+    collectionName = "leaderboard";
+    fetchLeaderboard();
+    startGame("jorden");
+});
 
-
+venusModeBtn.addEventListener("click", () => {
+    gamemodeMenu.style.display = "none";
+    gameContainer.style.display = "block";
+    collectionName = "leaderboard_venus"
+    fetchLeaderboard();
+    startGame("venus");
+});
