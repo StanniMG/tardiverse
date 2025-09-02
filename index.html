@@ -81,8 +81,11 @@
      <div>
         <div id="gamemodeMenu" style="display: none;">
             <h2>Vælg Spiltilstand</h2>
-            <button id="jordenModeBtn">Jorden</button>
-            <button id="venusModeBtn">Venus</button>
+            <div id="permsContainer">
+                <label id="bBucksLabel">bBucks</label>
+            </div>
+            <button id="jordenModeBtn" class="planet">Jorden</button>
+            <button id="venusModeBtn" class="planet">Venus</button>
             <p id="gamemodeDescription">Jorden: Standard gameplay med moderate udfordringer.<br>
             Venus: Øget sværhedsgrad med hyppigere og mere alvorlige katastrofer.</p>
         </div>
@@ -131,9 +134,6 @@
 
                 <div id="tooltip" class="tooltip"></div><br>
                 <button id="formeringUp" class="upgrade">Start</button><br>
-        </div>
-        <div id="permsContainer">
-                <label id="bBucksLabel">bBucks</label>
         </div>
         </div>
     
