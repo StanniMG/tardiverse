@@ -1399,6 +1399,7 @@ function applyVIPBackground() {
     gameContainer.style.color =  "white";
     sygdomsLossPreviewLabel.style.color = "white";
     warLossPreviewLabel.style.color = "white";
+    celledelingCountdownLabel.style.color = "white";
     console.log("🎉 Du har VIP-baggrund!");
 }
 
@@ -1578,7 +1579,6 @@ startBtn.addEventListener("click", () => {
         venusModeBtn.classList.add("unlocked");
         venusModeBtn.classList.remove("locked");
     } else {
-        venusModeBtn.textContent = `Venus (Lås op for ${venusCost} B-Bucks)`;
         venusModeBtn.classList.add("locked");
         venusModeBtn.classList.remove("unlocked");
     }
@@ -1616,4 +1616,21 @@ venusModeBtn.addEventListener("click", async () => {
         fetchLeaderboard();
         startGame("venus");
     } 
+});
+
+venusModeBtn.addEventListener("mouseover", (event) => {
+    tooltip.style.display = "block";
+    tooltip.style.left = `${event.target.getBoundingClientRect().left}px`;
+    tooltip.style.top = `${event.target.getBoundingClientRect().top - tooltip.offsetHeight - 10}px`;
+
+    if (event.target === venusModeBtn && !unlockedPlanets.includes("venus")) {
+        tooltip.textContent = `Venus: Lås op for ${venusCost} B-Bucks.`;
+    }
+    else {
+        tooltip.style.display = "none";
+    }
+});
+
+venusModeBtn.addEventListener("mouseout", () => {
+    tooltip.style.display = "none";
 });
