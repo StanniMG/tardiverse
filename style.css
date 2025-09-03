@@ -218,6 +218,17 @@ body {
     gap: 5,;  /* Plads mellem input og knap */
 }
 
+#loginBtn, #createAccountBtn {
+    padding: 8px 16px;
+    margin-bottom: 10px;
+    background-color: hwb(218 9% 35%);
+    border: solid black 1px;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
 /* Juster bredden på inputfeltet og knappen */
 #usernameInput {
     padding: 8px;
@@ -408,8 +419,8 @@ button:hover { filter: brightness(1.08); }
     font-weight: bold;
     text-align: center;
     cursor: pointer;
-    width: 100px;
-    height: 45px;
+    width: 150px;
+    height: 60px;
     border: black solid 2px;
     transition: background-color 0.3s ease, color 0.3s ease;
 }
