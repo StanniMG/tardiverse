@@ -212,11 +212,11 @@ function startGame(selectedMode) {
     document.body.style.backgroundColor = "hsl(0, 0%, 95%)";
     // Auto-increment points per second
     if (!timer) {
+        timer = true;
         let gameTimer = setInterval(function () {
             if (!start) return;
             if (!gameOver) {
                 count += countPerSec;
-                timer = true;
                 if (countdown > 1) {
                     countdown--;
                     countdownLabel.textContent = `Tid til ${nextCatastrophe}: ${countdown} år`;
@@ -1634,3 +1634,4 @@ venusModeBtn.addEventListener("mouseover", (event) => {
 venusModeBtn.addEventListener("mouseout", () => {
     tooltip.style.display = "none";
 });
+
