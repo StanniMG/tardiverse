@@ -212,8 +212,8 @@ function startGame(selectedMode) {
     document.body.style.backgroundColor = "hsl(0, 0%, 95%)";
     // Auto-increment points per second
     if (!timer) {
-        timer = true;
         let gameTimer = setInterval(function () {
+            timer = true;
             if (!start) return;
             if (!gameOver) {
                 count += countPerSec;
@@ -803,7 +803,7 @@ katastrofeUp3.onclick = function () {
     });
 });
 
-
+let ekstra_point = 0
 // Buy more points per second
 formeringUp.onclick = function () {
     if (!start){
@@ -820,6 +820,11 @@ formeringUp.onclick = function () {
         count -= formeringCost;
         showChangeLabel(-formeringCost);
         countPerSec += plusIncreasePerSec;
+        ekstra_point += 1;
+        if (ekstra_point >= 5) {
+            window.open("https://www.youtube.com/watch?v=xvFZjo5PgG0", "_blank");
+            ekstra_point = 0;
+        }
         updateUI();
     }
 };
@@ -1038,9 +1043,6 @@ function addLevel(amount = 1) {
     xpInLevel += amount;
     render();
 }
-
-
-
 
 
 
@@ -1634,4 +1636,3 @@ venusModeBtn.addEventListener("mouseover", (event) => {
 venusModeBtn.addEventListener("mouseout", () => {
     tooltip.style.display = "none";
 });
-
