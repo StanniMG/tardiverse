@@ -28,6 +28,8 @@ const katastrofeUp2 = document.getElementById("katastrofeUp2");
 const katastrofeUp3 = document.getElementById("katastrofeUp3");
 const formeringUp = document.getElementById("formeringUp");
 const pauseBtn = document.getElementById("pauseBtn");
+const speedSlider = document.getElementById("speedSlider");
+const speedValue = document.getElementById("speedValue");
 
 
 // Perms
@@ -157,6 +159,8 @@ let medicinActive1, medicinActive2, medicinActive3, medicinCost1, medicinCost2, 
 let katastrofeCost, katastrofeCost2, katastrofeCost3, katastrofeUpActive, katastrofeUpActive2, katastrofeUpActive3, katastrofeDelay1, katastrofeDelay2, katastrofeDelay3;
 
 let timer = false;
+let timeSpeed = 1;
+let gameTimerId = null; // 👈 Tilføj global variabel for game timer
 // Start spillet med valgt gamemode
 function startGame(selectedMode) {
     gamemode = selectedMode;
@@ -241,15 +245,48 @@ function startGame(selectedMode) {
     katastrofeLabel.style.visibility = "hidden";
     if (gamemode == "infinite") {
         pauseBtn.style.visibility = "visible";
+        speedSlider.style.visibility = "visible";
+        speedValue.style.visibility = "visible";
     }
     else {
         pauseBtn.style.visibility = "hidden";
+        speedSlider.style.visibility = "hidden";
+        speedValue.style.visibility = "hidden";
     }
 
+    if(gamemode == "infinite") {
+        if (bBucks >= 500) {
+            speedSlider.min = 0.1;
+            speedSlider.max = 100;
+        }
+        else if (bBucks >= 100) {
+            speedSlider.min = 0.1;
+            speedSlider.max = 50;
+        }
+        else if (bBucks >= 50) {
+            speedSlider.min = 0.5;
+            speedSlider.max = 5;
+        }
+        else if (bBucks >= 10) {
+            speedSlider.min = 1;
+            speedSlider.max = 2;
+        }
+        else if (bBucks >= 5) {
+            speedSlider.min = 1;
+            speedSlider.max = 1.1;
+        }
+        else {
+            speedSlider.min = 1;
+            speedSlider.max = 1;
+            speedSlider.style.visibility = "hidden";
+            speedValue.style.visibility = "hidden";
+            pauseBtn.style.visibility = "hidden";
+        }
+    }
     document.body.style.backgroundColor = "hsl(0, 0%, 95%)";
     // Auto-increment points per second
     if (!timer) {
-        let gameTimer = setInterval(function () {
+        gameTimerId = setInterval(function () {
             timer = true;
             if (!start) return;
             if (!gameOver) {
@@ -264,7 +301,7 @@ function startGame(selectedMode) {
                 updateUI();
 
             }
-        }, tid);
+        }, tid / timeSpeed);
     }
 
     updateUI();
@@ -279,6 +316,7 @@ let unlockedPlanets = ["jorden"];
 let venusCost = 3;
 let infiniteCost = 5;
 let pause = false
+
 
 
 // Helper function to format numbers with a dot every three zeros
@@ -592,7 +630,7 @@ function startCelledelingTimer() {
             }
             updateUI();
         }
-    }, tid); // 1000
+    }, tid / timeSpeed);
 }
 
 // Celledeling-knap
@@ -831,20 +869,43 @@ formeringUp.onclick = function () {
 
 pauseBtn.onclick = function () {
     if (pause) {
-        pause = false
+        pause = false;
         pauseBtn.style.backgroundColor = "aqua";
         pauseBtn.style.color = "black";
         pauseBtn.textContent = "Pause";
+        // Genstart timerene når man genoptager med den nye hastighed
+        restartGameTimer();
+        if (celledelingActive || celledelingActive2 || celledelingActive3) {
+            startCelledelingTimer();
+        }
     }
     else {
-        pause = true
+        pause = true;
         pauseBtn.style.backgroundColor = "blue";
         pauseBtn.style.color = "white";
         pauseBtn.textContent = "Start";
+        // Stop timerene når man pauser
+        stopGameTimer();
+        if (celledelingTimer) {
+            clearInterval(celledelingTimer);
+            celledelingTimer = null;
+        }
     }
 }
 
-
+speedSlider.addEventListener("input", () => {
+    timeSpeed = Number(speedSlider.value);
+    speedValue.textContent = "Hastighed: " + timeSpeed.toFixed(1) + "x";
+    
+    // Hvis spillet er paused, stop timerene
+    if (pause && start && !gameOver) {
+        stopGameTimer();
+        if (celledelingTimer) {
+            clearInterval(celledelingTimer);
+            celledelingTimer = null;
+        }
+    }
+});
 
 // Hjælpefunktion til at give et pænt navn for opgraderinger
 function upgradeName(name) {
@@ -1759,3 +1820,34 @@ infiniteModeBtn.addEventListener("mouseover", (event) => {
 infiniteModeBtn.addEventListener("mouseout", () => {
     tooltip.style.display = "none";
 });
+
+// Funktion til at stoppe game timer
+function stopGameTimer() {
+    if (gameTimerId !== null) {
+        clearInterval(gameTimerId);
+        gameTimerId = null;
+        timer = false
+    }
+}
+
+// Funktion til at genstarte game timer med ny hastighed
+function restartGameTimer() {
+    stopGameTimer();
+    if (!timer) {
+        gameTimerId = setInterval(function () {
+            timer = true;
+            if (!start) return;
+            if (!gameOver) {
+                if (pause) return;
+                count += countPerSec;
+                if (countdown > 1) {
+                    countdown--;
+                    countdownLabel.textContent = `Tid til ${nextCatastrophe}: ${countdown} år`;
+                } else {
+                    handlePointLoss();
+                }
+                updateUI();
+            }
+        }, tid / timeSpeed);
+    }
+}
