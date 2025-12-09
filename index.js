@@ -27,6 +27,7 @@ const katastrofeUp = document.getElementById("katastrofeUp");
 const katastrofeUp2 = document.getElementById("katastrofeUp2");
 const katastrofeUp3 = document.getElementById("katastrofeUp3");
 const formeringUp = document.getElementById("formeringUp");
+const pauseBtn = document.getElementById("pauseBtn");
 
 
 // Perms
@@ -238,6 +239,12 @@ function startGame(selectedMode) {
     celledelingCountdownLabel.style.display = "none";
     //katastrofeLabel.style.display = "none";
     katastrofeLabel.style.visibility = "hidden";
+    if (gamemode == "infinite") {
+        pauseBtn.style.visibility = "visible";
+    }
+    else {
+        pauseBtn.style.visibility = "hidden";
+    }
 
     document.body.style.backgroundColor = "hsl(0, 0%, 95%)";
     // Auto-increment points per second
@@ -246,6 +253,7 @@ function startGame(selectedMode) {
             timer = true;
             if (!start) return;
             if (!gameOver) {
+                if (pause) return;
                 count += countPerSec;
                 if (countdown > 1) {
                     countdown--;
@@ -270,7 +278,7 @@ let donation = 0;
 let unlockedPlanets = ["jorden"];
 let venusCost = 3;
 let infiniteCost = 5;
-
+let pause = false
 
 // Helper function to format numbers with a dot every three zeros
 
@@ -600,7 +608,7 @@ function startCelledelingTimer() {
 
     celledelingTimer = setInterval(() => {
         if (gameOver) return;
-
+        if (pause) return;
         if (celledelingActive || celledelingActive2 || celledelingActive3) {
             if (newCelledelingCountdown > 1) {    
                 newCelledelingCountdown--;
@@ -858,7 +866,20 @@ formeringUp.onclick = function () {
     }
 };
 
-
+pauseBtn.onclick = function () {
+    if (pause) {
+        pause = false
+        pauseBtn.style.backgroundColor = "aqua";
+        pauseBtn.style.color = "black";
+        pauseBtn.textContent = "Pause";
+    }
+    else {
+        pause = true
+        pauseBtn.style.backgroundColor = "blue";
+        pauseBtn.style.color = "white";
+        pauseBtn.textContent = "Start";
+    }
+}
 
 
 
