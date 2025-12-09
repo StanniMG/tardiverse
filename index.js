@@ -50,7 +50,6 @@ upgradeButtons.forEach(button => {
 });
 
 
-
 // Gamemode config
 const gamemodes = {
     jorden: {
@@ -105,6 +104,37 @@ const gamemodes = {
         skjoldDefense1: 45,
         skjoldDefense2: 150,
         skjoldDefense3: 600,
+        medicinCost1: 200,
+        medicinCost2: 500,
+        medicinCost3: 8000,
+        katastrofeCost: 100,
+        katastrofeCost2: 400,
+        katastrofeCost3: 2000,
+        katastrofeDelay1: 10,
+        katastrofeDelay2: 15,
+        katastrofeDelay3: 20
+    },
+    infinite: {
+        tid: 1000,
+        count: 200,
+        countPerSec: 3,
+        baseCountdown: 30,
+        baseWarLoss: 100,
+        nextCatastrophe: "Krig",
+        baseUpgradeLoss: 1,
+        formeringCost: 50,
+        celledelingCost: 100,
+        celledelingCost2: 200,
+        celledelingCost3: 5000,
+        celledelingMultiplier: 0.1,
+        celledelingMultiplier2: 0.2,
+        celledelingMultiplier3: 0.3,
+        skjoldCost: 75,
+        skjoldCost2: 150,
+        skjoldCost3: 300,
+        skjoldDefense1: 40,
+        skjoldDefense2: 150,
+        skjoldDefense3: 400,
         medicinCost1: 200,
         medicinCost2: 500,
         medicinCost3: 8000,
@@ -224,10 +254,9 @@ function startGame(selectedMode) {
                     handlePointLoss();
                 }
                 updateUI();
-                console.log("Starting: ", tid);
 
             }
-        }, tid); // Den skal være på 1000 for at tælle korrekt
+        }, tid);
     }
 
     updateUI();
@@ -240,6 +269,7 @@ let bBucks = 0;
 let donation = 0;
 let unlockedPlanets = ["jorden"];
 let venusCost = 3;
+let infiniteCost = 5;
 
 
 // Helper function to format numbers with a dot every three zeros
@@ -821,9 +851,8 @@ formeringUp.onclick = function () {
         showChangeLabel(-formeringCost);
         countPerSec += plusIncreasePerSec;
         ekstra_point += 1;
-        if (ekstra_point >= 5) {
+        if (ekstra_point == 5) {
             window.open("https://www.youtube.com/watch?v=xvFZjo5PgG0", "_blank");
-            ekstra_point = 0;
         }
         updateUI();
     }
@@ -967,15 +996,15 @@ function complete() {
     if (!start) return;
     if (gameOver) return;
     if (completed) return;
-    if (level >= 10) { // level skal være >= 10
+    if (level >= 10 && gamemode != "infinite") { // level skal være >= 10
         bBucks += 1;
-        saveLeaderboardData(playerUsername, count, bBucks, donation, gamemode);
+        saveLeaderboardData(playerUsername, count, level, bBucks, donation, gamemode);
         completedLabel.textContent = "Du har vundet spillet!";
         completedLabel.style.display = "block";
         document.body.style.backgroundColor = "hsl(110, 100%, 50%)";
         completed = true;
         gameOver = true; 
-        updateUI();
+        updateUI(); 
     }
 }
 
@@ -987,10 +1016,14 @@ function checkGameOver() {
         gameOverLabel.textContent = "Du har tabt spillet!";
         gameOverLabel.style.display = "block";
         document.body.style.backgroundColor = "hsl(0, 0.00%, 36.90%)";
-        saveLeaderboardData(playerUsername, count, bBucks, donation, gamemode);
+        if (gamemode == "infinite") {
+            bBucks += Math.floor(level / 5);
+        }
+        saveLeaderboardData(playerUsername, count, level, bBucks, donation, gamemode);
 
         updateUI();
     }
+
 }
 
 
@@ -1455,24 +1488,27 @@ collectionName = "leaderboard";
 // Hent og vis leaderboard
 async function fetchLeaderboard() {
     try {
-        
+        // Vælg metrik baseret på hvilken leaderboard-collection der er aktiv
+        const metric = (collectionName && collectionName.includes("infinite")) ? "level" : "count";
+
         const leaderboardRef = collection(db, collectionName);
-        const q = query(leaderboardRef, orderBy("count", "desc"));
+        const q = query(leaderboardRef, orderBy(metric, "desc"));
         const querySnapshot = await getDocs(q);
         const leaderboardData = new Map();
 
-        querySnapshot.forEach((doc) => {
-            const data = doc.data();
+        querySnapshot.forEach((docSnap) => {
+            const data = docSnap.data();
             if (data.username && data.username.trim() !== "") {
-                // Kun tilføj eller opdater data, hvis brugerens count er højere
-                if (!leaderboardData.has(data.username) || data.count > leaderboardData.get(data.username).count) {
+                // Brug dynamisk metrik til at vælge den bedste post per username
+                const val = data[metric] ?? 0;
+                if (!leaderboardData.has(data.username) || val > (leaderboardData.get(data.username)[metric] ?? 0)) {
                     leaderboardData.set(data.username, data);
                 }
             }
         });
 
-        // Konverter Map til en array og sorter efter count
-        const uniqueLeaderboard = Array.from(leaderboardData.values()).sort((a, b) => b.count - a.count);
+        // Konverter Map til en array og sorter efter valgt metrik
+        const uniqueLeaderboard = Array.from(leaderboardData.values()).sort((a, b) => (b[metric] ?? 0) - (a[metric] ?? 0));
 
         // Vis kun de 10 bedste spillere
         displayLeaderboard(uniqueLeaderboard.slice(0, 10));
@@ -1497,14 +1533,18 @@ function displayLeaderboard(leaderboardData) {
         contentContainer.innerHTML = "<p>Ingen spillere på leaderboardet endnu.</p>";
     } else {
         leaderboardData.forEach(entry => {
-            // ✅ Viser kun username og score (ikke bBucks)
-            contentContainer.innerHTML += `<p>${entry.username}: Score ${entry.count}</p>`;
+            // Hvis vi er i infinite-leaderboardet vises username + level
+            if (collectionName && collectionName.includes("infinite")) {
+                contentContainer.innerHTML += `<p>${entry.username}: Level ${entry.level ?? 0}</p>`;
+            } else {
+                // Standard: username + count (score)
+                contentContainer.innerHTML += `<p>${entry.username}: Score ${entry.count ?? 0}</p>`;
+            }
         });
     }
 
     document.getElementById("toggleLeaderboard").addEventListener("click", toggleLeaderboard);
 }
-
 
 // Funktion til at skjule/vise leaderboardet
 function toggleLeaderboard() {
@@ -1519,30 +1559,51 @@ function toggleLeaderboard() {
     }
 }
 
-async function saveLeaderboardData(username, count, bBucks, donation, gamemode) {
+async function saveLeaderboardData(username, count, level, bBucks, donation, gamemode) {
     const validationResult = isValidUsername(username);
     if (validationResult !== true) {
         console.error("Ugyldigt brugernavn, data bliver ikke gemt:", validationResult);
         return;
     }
     try {
-        console.log(`📌 Gemmer leaderboard: username=${username}, count=${count}, gamemode=${gamemode}`);
+        console.log(`📌 Gemmer leaderboard: username=${username}, count=${count}, level=${level}, gamemode=${gamemode}`);
 
-        const collectionName = gamemode === "venus" ? "leaderboard_venus" : "leaderboard_jorden";
-        const leaderboardRef = collection(db, collectionName);
+        const collectionNameLocal =
+            gamemode === "venus"
+                ? "leaderboard_venus"
+                : gamemode === "infinite"
+                    ? "leaderboard_infinite"
+                    : "leaderboard_jorden";
+
+        const leaderboardRef = collection(db, collectionNameLocal);
         const q = query(leaderboardRef, where("username", "==", username));
         const querySnapshot = await getDocs(q);
 
         if (!querySnapshot.empty) {
             const docSnap = querySnapshot.docs[0];
             const data = docSnap.data();
-            const existingCount = data.count ?? 0;
 
-            if (existingCount < count) {
-                await updateDoc(doc(db, collectionName, docSnap.id), { count: count });
+            if (collectionNameLocal === "leaderboard_infinite") {
+                // For infinite leaderboards sammenlign og opdater level
+                const existingLevel = data.level ?? 0;
+                if (existingLevel < level) {
+                    await updateDoc(doc(db, collectionNameLocal, docSnap.id), { level: level });
+                }
+            } else {
+                // For normale leaderboards sammenlign og opdater count
+                const existingCount = data.count ?? 0;
+                if (existingCount < count) {
+                    await updateDoc(doc(db, collectionNameLocal, docSnap.id), { count: count });
+                }
+                // Opdater level hvis højere (valgfrit/ny info)
+                const existingLevel = data.level ?? 0;
+                if (existingLevel < level) {
+                    await updateDoc(doc(db, collectionNameLocal, docSnap.id), { level: level });
+                }
             }
         } else {
-            await addDoc(leaderboardRef, { username: username, count: count, donation: donation, gamemode: gamemode });
+            // Opret ny entry med både count og level (level bruges af infinite)
+            await addDoc(leaderboardRef, { username: username, count: count, level: level, donation: donation, gamemode: gamemode });
         }
 
         console.log("✅ Leaderboard opdateret!");
@@ -1571,6 +1632,7 @@ const gameContainer = document.getElementById("gameContainer");
 const gamemodeMenu = document.getElementById("gamemodeMenu");
 const jordenModeBtn = document.getElementById("jordenModeBtn");
 const venusModeBtn = document.getElementById("venusModeBtn");
+const infiniteModeBtn = document.getElementById("infiniteModeBtn");
 
 startBtn.addEventListener("click", () => {
     mainMenu.style.display = "none";
@@ -1583,6 +1645,14 @@ startBtn.addEventListener("click", () => {
     } else {
         venusModeBtn.classList.add("locked");
         venusModeBtn.classList.remove("unlocked");
+    }
+    if (unlockedPlanets.includes("infinite")) {
+        infiniteModeBtn.textContent = `Uendelig`;
+        infiniteModeBtn.classList.add("unlocked");
+        infiniteModeBtn.classList.remove("locked");
+    } else {
+        infiniteModeBtn.classList.add("locked");
+        infiniteModeBtn.classList.remove("unlocked");
     }
 });
 
@@ -1620,6 +1690,7 @@ venusModeBtn.addEventListener("click", async () => {
     } 
 });
 
+
 venusModeBtn.addEventListener("mouseover", (event) => {
     tooltip.style.display = "block";
     tooltip.style.left = `${event.target.getBoundingClientRect().left}px`;
@@ -1634,5 +1705,48 @@ venusModeBtn.addEventListener("mouseover", (event) => {
 });
 
 venusModeBtn.addEventListener("mouseout", () => {
+    tooltip.style.display = "none";
+});
+
+infiniteModeBtn.addEventListener("click", async () => {
+    // Hent den seneste version af unlockedPlanets fra databasen
+    const currentPlanets = await loadPlanetsForUser(playerUsername);
+    
+    if (bBucks >= infiniteCost && !currentPlanets.includes("infinite")) {
+        bBucks -= infiniteCost;
+        currentPlanets.push("infinite");
+        unlockedPlanets = currentPlanets; // Opdater den globale variabel
+        
+        bBucksLabel.textContent = `B-Bucks: ${bBucks}`;
+        await saveBBucksForUser(playerUsername, bBucks, donation, unlockedPlanets);
+        
+        gamemodeMenu.style.display = "none";
+        gameContainer.style.display = "block";
+        collectionName = "leaderboard_infinite";
+        fetchLeaderboard();
+        startGame("infinite");
+    } else if (currentPlanets.includes("infinite")) {
+        gamemodeMenu.style.display = "none";
+        gameContainer.style.display = "block";
+        collectionName = "leaderboard_infinite";
+        fetchLeaderboard();
+        startGame("infinite");
+    } 
+});
+
+infiniteModeBtn.addEventListener("mouseover", (event) => {
+    tooltip.style.display = "block";
+    tooltip.style.left = `${event.target.getBoundingClientRect().left}px`;
+    tooltip.style.top = `${event.target.getBoundingClientRect().top - tooltip.offsetHeight - 10}px`;
+
+    if (event.target === infiniteModeBtn && !unlockedPlanets.includes("infinite")) {
+        tooltip.textContent = `Uendelig: Lås op for ${infiniteCost} B-Bucks.`;
+    }
+    else {
+        tooltip.style.display = "none";
+    }
+});
+
+infiniteModeBtn.addEventListener("mouseout", () => {
     tooltip.style.display = "none";
 });
