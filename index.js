@@ -331,6 +331,7 @@ function updateUI() {
     warLossPreviewLabel.textContent = `Tab ved næste krig: ${Math.round(adjustedWarLoss)}`;
 
     // Medicin: Beregn den justerede procentvise tab ved næste sygdom
+    baseSygdomsLoss = Math.round(baseSygdomsLoss * 100) / 100
     let adjustedSygdomsLoss = baseSygdomsLoss; // starter med 50% (0.5)
     upgradeLoss = baseUpgradeLoss;
     if (medicinActive1) {
