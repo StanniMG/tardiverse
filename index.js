@@ -1,6 +1,6 @@
 // Labels
 const talLabel = document.getElementById("talLabel");
-const bonusLabel = document.getElementById("bonusLabel"); // Ny label til bonus
+const bonusLabel = document.getElementById("bonusLabel");
 const increasePerSecLabel = document.getElementById("increasePerSecLabel");
 const countdownLabel = document.getElementById("countdownLabel");
 const gameOverLabel = document.getElementById("gameOverLabel");
@@ -1851,3 +1851,4 @@ function restartGameTimer() {
         }, tid / timeSpeed);
     }
 }
+
