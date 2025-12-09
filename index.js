@@ -336,12 +336,12 @@ function updateUI() {
     if (medicinActive1) {
         if (medicinActive2) {
             if (medicinActive3) {
-                adjustedSygdomsLoss = 0.05; // Ingen tab, hvis alle tre er opgraderet
+                adjustedSygdomsLoss = baseSygdomsLoss - 0.45; // Ingen tab, hvis alle tre er opgraderet
             } else {
-                adjustedSygdomsLoss = 0.15;
+                adjustedSygdomsLoss = baseSygdomsLoss - 0.35;
             }
         } else {
-            adjustedSygdomsLoss = 0.3;
+            adjustedSygdomsLoss = baseSygdomsLoss - 0.2;
         }
     } else {
         adjustedSygdomsLoss = baseSygdomsLoss;
