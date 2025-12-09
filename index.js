@@ -915,7 +915,9 @@ function handlePointLoss() {
                 }
             }
         }
-
+        if (baseSygdomsLoss >= 0.9) {
+            baseSygdomsLoss = 0.9;
+        }
         console.log(baseSygdomsLoss)
         // Saml alle aktive opgraderinger (kun én pr. type – vi antager, at højeste niveau er aktivt, hvis det er sandt)
         let upgrades = [];
