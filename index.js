@@ -116,7 +116,7 @@ const gamemodes = {
         katastrofeDelay3: 20
     },
     infinite: {
-        tid: 1000,
+        tid: 100,
         count: 200,
         countPerSec: 3,
         baseCountdown: 30,
@@ -280,6 +280,7 @@ let venusCost = 3;
 let infiniteCost = 5;
 let pause = false
 
+
 // Helper function to format numbers with a dot every three zeros
 
 function updateUI() {
@@ -294,7 +295,7 @@ function updateUI() {
     checkGameOver()
     complete()
     bBucksLabel.textContent = `B-Bucks: ${bBucks}`;
-    talLabel.textContent = `${(count)}`;
+    talLabel.textContent = `${count.toLocaleString("da-DK")}`;
     increasePerSecLabel.textContent = `${(countPerSec)} bjørnedyr per år`;
     levelLabel.textContent = `Level: ${level}`;
     formeringUp.textContent = `Formering (${formeringCost})`;
@@ -554,51 +555,6 @@ function showChangeLabel(amount) {
 
 let celledelingTimer = null; // Gem timer-ID'et globalt
 
-function restart() {
-    // Nulstil variabler
-    count = 200;
-    celledelingActive = false;
-    celledelingActive2 = false;
-    celledelingActive3 = false;
-    skjoldActive = false;
-    skjoldActive2 = false;
-    skjoldActive3 = false;
-    medicinActive1 = false;
-    medicinActive2 = false;
-    medicinActive3 = false;
-    katastrofeUpActive = false;
-    katastrofeUpActive2 = false;
-    katastrofeUpActive3 = false;
-
-    baseUpgradeLoss = 1;
-    upgradeLoss = baseUpgradeLoss;
-    countPerSec = 3;
-    countdown = baseCountdown;
-    gameOver = false;
-    start = true;
-    baseWarLoss = 100;
-    baseSygdomsLoss = 0.5;
-    level = 0;
-    xpInLevel = 0;
-    render();
-    nextCatastrophe = "Krig";
-    completed = false;
-    gameOverLabel.style.display = "none";
-    completedLabel.style.display = "none";
-    celledelingCountdownLabel.style.display = "none";
-    //katastrofeLabel.style.display = "none";
-    katastrofeLabel.style.visibility = "hidden";
-
-    document.body.style.backgroundColor = "hsl(0, 0%, 95%)";
-
-    // Ryd gammel celledeling-timer
-    if (celledelingTimer) {
-        clearInterval(celledelingTimer);
-        celledelingTimer = null;
-    }
-
-    updateUI();
-}
 
 // Fælles funktion til at starte celledeling-timeren
 function startCelledelingTimer() {
@@ -924,24 +880,43 @@ function handlePointLoss() {
             katastrofeLabel.textContent = `Krig: Du har mistet ${Math.round(warLoss)} bjørnedyr.`;
         }
         showChangeLabel(Math.round(-warLoss));
-        baseWarLoss *= 1.5;
+        if (level >= 10 && gamemode == "infinite") {
+            baseWarLoss *= 2;
+        }
+        else {
+            baseWarLoss *= 1.5;
+        }
+
         
     } else if (nextCatastrophe === "Sygdom") {
-        let sygdomsLoss = 0.5;
+        sygdomsLoss = baseSygdomsLoss;
         if (medicinActive1) {
             if (medicinActive2) {
                 if (medicinActive3) {
-                    sygdomsLoss = 0.05;
+                    sygdomsLoss = baseSygdomsLoss - 0.45;
                 } else {
-                    sygdomsLoss = 0.15;
+                    sygdomsLoss = baseSygdomsLoss - 0.35;
                 }
             } else {
-                sygdomsLoss = 0.3;
+                sygdomsLoss = baseSygdomsLoss - 0.2;
             }
         }
         count = Math.round(count * (1 - sygdomsLoss));
+        if (gamemode == "infinite") {
+            if (medicinActive1) {
+                if (medicinActive2) {
+                    if (medicinActive3) {
+                        baseSygdomsLoss += 0.01;
+                    } else {
+                        baseSygdomsLoss += 0.03;
+                    }
+                } else {
+                    baseSygdomsLoss += 0.05;
+                }
+            }
+        }
 
-
+        console.log(baseSygdomsLoss)
         // Saml alle aktive opgraderinger (kun én pr. type – vi antager, at højeste niveau er aktivt, hvis det er sandt)
         let upgrades = [];
         if (celledelingActive3) upgrades.push("celledelingActive3");
