@@ -116,7 +116,7 @@ const gamemodes = {
         katastrofeDelay3: 20
     },
     infinite: {
-        tid: 1000,
+        tid: 300,
         count: 200,
         countPerSec: 3,
         baseCountdown: 30,
@@ -901,6 +901,9 @@ function handlePointLoss() {
                 sygdomsLoss = baseSygdomsLoss - 0.2;
             }
         }
+        if (sygdomsLoss >= 0.9) {
+            sygdomsLoss = 0.9;
+        }
         count = Math.round(count * (1 - sygdomsLoss));
         if (gamemode == "infinite") {
             if (medicinActive1) {
@@ -908,16 +911,17 @@ function handlePointLoss() {
                     if (medicinActive3) {
                         baseSygdomsLoss += 0.01;
                     } else {
-                        baseSygdomsLoss += 0.03;
+                        baseSygdomsLoss += 0.02;
                     }
                 } else {
-                    baseSygdomsLoss += 0.05;
+                    baseSygdomsLoss += 0.03;
                 }
             }
+            else {
+                baseSygdomsLoss += 0.05
+            }
         }
-        if (baseSygdomsLoss >= 0.9) {
-            baseSygdomsLoss = 0.9;
-        }
+        baseSygdomsLoss = Math.round(baseSygdomsLoss * 100) / 100
         console.log(baseSygdomsLoss)
         // Saml alle aktive opgraderinger (kun én pr. type – vi antager, at højeste niveau er aktivt, hvis det er sandt)
         let upgrades = [];
