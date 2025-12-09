@@ -116,7 +116,7 @@ const gamemodes = {
         katastrofeDelay3: 20
     },
     infinite: {
-        tid: 300,
+        tid: 1000,
         count: 200,
         countPerSec: 3,
         baseCountdown: 30,
@@ -772,6 +772,13 @@ katastrofeUp3.onclick = function () {
             tooltip.textContent = `Skjold 2: Reducerer krigstab med ${skjoldDefense2 - skjoldDefense1} ekstra / ${skjoldDefense2} i alt. Koster ${skjoldCost2} bjørnedyr.`;
         } else if (event.target === skjoldUp3) {
             tooltip.textContent = `Skjold 3: Reducerer krigstab med ${skjoldDefense3 - skjoldDefense2} ekstra / ${skjoldDefense3} i alt. Koster ${skjoldCost3} bjørnedyr.`;
+        }
+        else if (event.target === medicinUp1 && gamemode == "infinite") {
+            tooltip.textContent = `Medicin: Reducerer sygdom med 20% og reducerer sygdomsstigningen til 3%. Koster ${medicinCost1} bjørnedyr.`;
+        } else if (event.target === medicinUp2 && gamemode == "infinite") {
+            tooltip.textContent = `Medicin 2: Reducerer sygdom med 35% og reducerer sygdomsstigningen til 2%. Koster ${medicinCost2} bjørnedyr.`;
+        } else if (event.target === medicinUp3 && gamemode == "infinite") {
+            tooltip.textContent = `Medicin 3: Reducerer sygdom med 45% og reducerer sygdomsstigningen til 1%. Koster ${medicinCost3} bjørnedyr.`;
         }
         else if (event.target === medicinUp1) {
             tooltip.textContent = `Medicin: Reducerer sygdom til 30%. Koster ${medicinCost1} bjørnedyr.`;
