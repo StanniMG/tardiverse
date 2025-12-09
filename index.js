@@ -116,7 +116,7 @@ const gamemodes = {
         katastrofeDelay3: 20
     },
     infinite: {
-        tid: 100,
+        tid: 1000,
         count: 200,
         countPerSec: 3,
         baseCountdown: 30,
